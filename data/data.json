@@ -1,0 +1,808 @@
+{
+  "home": {
+    "carousel": [
+      {
+        "i": "https://wallpapercave.com/wp/wp9215243.jpg",
+        "t": "Social Media"
+      },
+      {
+        "i": "https://c0.wallpaperflare.com/preview/67/371/796/artwork-composition-creating-creative.jpg",
+        "t": "Designing"
+      },
+      {
+        "i": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8ZWRpdGluZyUyMHdyaXRpbmd8ZW58MHx8MHx8&w=1000&q=80",
+        "t": "Editing"
+      },
+      {
+        "i": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8ZWRpdGluZyUyMHdyaXRpbmd8ZW58MHx8MHx8&w=1000&q=80",
+        "t": "Writing & Rewriting"
+      },
+      {
+        "i": "https://i.pinimg.com/originals/a6/34/e9/a634e9b187a4f13d52352d19729a5575.jpg",
+        "t": "Photo Editing"
+      },
+      {
+        "i": "https://media.istockphoto.com/id/1305999733/photo/web-design-desktop.jpg?b=1&s=170667a&w=0&k=20&c=4yNOztDAVsxOG5bq-_-KwcVl3a3LlTSTWp5c43O7MvU=",
+        "t": "Website Designing"
+      },
+      {
+        "i": "https://ravisah.in/images/mobile-app-development.gif",
+        "t": "App Development"
+      },
+      {
+        "i": "https://e0.pxfuel.com/wallpapers/349/864/desktop-wallpaper-cloud-computing-computing-cloud-computing-and-computing-background-data-cloud.jpg",
+        "t": "Cloud Infrastructure"
+      }
+    ],
+    "circleCenterText": "Solution For All Media Needs",
+    "circleArray": [
+      {
+        "text": "Editing Writing & Rewriting",
+        "image": "images/Writing.gif",
+        "image2": "images/Editing.gif",
+        "bgimg": "https://i.redd.it/lbvrmhdm9c581.gif",
+        "link": "services.php?for-the-best=Editing-Writing-Rewriting",
+        "description": "Our highly qualified team of editors, writers, and rewriters specializes in transforming your content into powerful narratives that resonate with your audience. We excel at precision editing, compelling writing, and innovative rewriting, perfecting every word to ensure your message stands out. Let us breathe life into your content, making every word count."
+      },
+      {
+        "text": "Designing (Print)",
+        "image": "https://stamod.com/wp-content/uploads/2022/04/Magazine_layout_1.jpg",
+        "image2": "https://stamod.com/wp-content/uploads/2022/04/Magazine_layout_5.jpg",
+        "bgimg": "https://www.gizmodo.com.au/wp-content/uploads/sites/2/2019/03/15/iusxetacpatryoqg8s1u.gif",
+        "link": "services.php?for-the-best=Designing",
+        "color": "",
+        "description": "At Media Pitch, design is not just an art; it's a storytelling tool. We create stunning designs for newspapers and magazines, leaving a lasting imprint on your audience. Our team of design specialists crafts captivating visuals that narrate your story, cementing your brand's presence in the minds of your viewers."
+      },
+      {
+        "text": "Social Media",
+        "image": "https://images5.alphacoders.com/113/1138652.jpg",
+        "description": "In the era of digitalization, social media is more than just a platform—it's a powerful vehicle that drives your brand's message home. We provide comprehensive social media services, optimizing your online presence and expanding your digital footprint. Let us amplify your brand's voice, engage your audience, and drive impact on a global scale.",
+        "link": "services.php?for-the-best=Social-Media",
+        "color": ""
+      },
+      {
+        "image": "images/Photo%20editing.gif",
+        "text": "Photo Editing",
+        "description": "Photographs are the windows into the soul of your brand. Our professional photo editing services transform your images into vibrant visuals that captivate and engage. Whether you're a photographer, a business owner, or an individual, we're here to turn your images into powerful narratives that resonate with your audience.",
+        "link": "services.php?for-the-best=Photo-Editing",
+        "color": ""
+      },
+      {
+        "image": "images/Website%20Designing.gif",
+        "image2": "https://www.designyup.com/wp-content/uploads/2018/12/importance-of-layout-in-graphic-design-feature-image.jpg",
+        "text": "Website Designing",
+        "description": "In the digital world, your website is the cornerstone of your online presence. Our exceptional website designing services blend creativity, functionality, and user experience to help you shine online. Whether you're launching a new website or revamping an existing one, we'll create a site that encapsulates your brand's essence and drives results.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/App%20Development.gif",
+        "text": "App Development",
+        "description": "Transform your ideas into reality with our specialized app development services. Our team of experienced developers and designers is dedicated to building innovative, high-performance mobile applications that deliver unparalleled user experiences. With us, your app is more than just a product—it's an experience.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Cloud%20infrastructure.gif",
+        "text": "Cloud Infrastructure",
+        "description": "Embrace the future of business with our comprehensive cloud infrastructure services. We help you leverage the power of cloud computing, enhancing scalability, flexibility, and efficiency. Our cloud experts design, implement, and manage tailored cloud solutions that align with your unique business needs. With Media Pitch, your transition to the cloud is smooth and seamless.",
+        "link": "",
+        "color": "red"
+      }
+    ]
+  },
+  "Editing-Writing-Rewriting": {
+    "pageImage": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8ZWRpdGluZyUyMHdyaXRpbmd8ZW58MHx8MHx8&w=1000&q=80",
+    "editingTitle": "Editing Writing & Rewriting",
+    "editingDescription": "Our team of skilled editors, writers, and rewriters is here to elevate your content and make it shine. Whether you need precise editing, captivating writing, or refreshing rewriting, we've got the expertise to bring your words to life.",
+    "finalText": "Ready to take your content to the next level? Trust Media Pitch for top-notch editing, writing, and rewriting services that make an impact. <a href='contact-us.php'>Contact us</a> today to discuss your project and let us unleash the power of words for you.",
+    "circleCenterText": "Platform For All Media Needs",
+    "circleArray": [
+      {
+        "image": "images/Editing%20Writing/Expertise%20that%20makes%20a%20difference.jpg",
+        "text": "Expertise that makes a difference",
+        "description": "Our experienced professionals know the power of words. We'll fine-tune your content to ensure clarity, coherence, and impact, making your message resonate with your audience.",
+        "link": "#",
+        "color": ""
+      },
+      {
+        "image": "images/Editing%20Writing/Tailored%20to%20perfection.jpg",
+        "text": "Tailored to perfection",
+        "description": "We understand that every piece of content is unique. That's why we offer personalized solutions that meet your specific requirements. From business documents to creative pieces, we'll craft compelling content that matches your style and goals.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Editing%20Writing/Attention%20to%20detail.jpg",
+        "text": "Attention to detail",
+        "description": "Our meticulous editors have an eagle eye for grammar, spelling, and punctuation. We'll ensure that your content is error-free, polished, and ready to make a lasting impression.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Editing%20Writing/Captivating%20storytelling.jpg",
+        "text": "Captivating storytelling",
+        "description": "Our talented writers are skilled storytellers. We'll create engaging narratives that captivate your readers, conveying your message effectively and leaving a lasting impact.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Editing%20Writing/Fresh%20perspectives.jpg",
+        "text": "Fresh perspectives",
+        "description": "Sometimes, all you need is a fresh perspective. Our rewriters will take your existing content and transform it into something new and exciting. We'll breathe new life into your words, enhancing their effectiveness and appeal.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Editing%20Writing/Timely%20delivery.jpg",
+        "text": "Timely delivery",
+        "description": "We understand the importance of deadlines. When you work with Media Pitch, you can expect timely delivery without compromising on quality. We'll ensure your content is ready when you need it.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Editing%20Writing/Confidentiality%20and%20professionalism.jpg",
+        "text": "Confidentiality and professionalism",
+        "description": "Your content is safe with us. We uphold the highest standards of confidentiality and professionalism, treating your work with the utmost care and respect.",
+        "link": "",
+        "color": "red"
+      }
+    ]
+  },
+  "Designing": {
+    "editingTitle": "Designing (Print)",
+    "pageImage": "https://c0.wallpaperflare.com/preview/67/371/796/artwork-composition-creating-creative.jpg",
+    "editingDescription": "We bring design to life. As experts in the field, we specialize in creating captivating designs for newspapers and magazines that leave a lasting impression. When it comes to visual storytelling, we're the team you can rely on.",
+    "finalText": "Experience the difference that exceptional design can make in your newspapers and magazines. Trust Media Pitch to bring your vision to life with stunning designs that elevate your publication. <a href='contact-us.php'>Contact us</a> today to discuss your design project and let us create designs that leave a lasting impression on your readers.",
+    "circleCenterText": "Platform For All Media Needs",
+    "circleArray": [
+      {
+        "image": "images/Designing/Creativity%20that%20stands%20out.jpg",
+        "text": "Creativity that stands out",
+        "description": "Our talented designers have an innate ability to create visually stunning layouts and graphics that grab attention. We'll bring your content to life with eye-catching designs that engage and captivate your readers.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Designing/Tailored%20for%20your%20brand.jpg",
+        "text": "Tailored for your brand",
+        "description": "We understand the importance of maintaining brand consistency. Our designs are carefully crafted to align with your brand identity, ensuring a cohesive and professional look that reflects your unique style.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Designing/Attention%20to%20detail.jpg",
+        "text": "Attention to detail",
+        "description": "We believe that every element matters. From typography and color palettes to imagery and composition, our designers pay meticulous attention to detail, creating designs that are visually appealing and polished.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Designing/Seamless%20integration.jpg",
+        "text": "Seamless integration",
+        "description": "Our designs seamlessly integrate with your content, enhancing readability and creating a harmonious flow. We'll work closely with you to understand your editorial goals and ensure that our designs enhance your storytelling.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Designing/Engaging%20visuals.jpg",
+        "text": "Engaging visuals",
+        "description": "We know how to create visuals that speak volumes. Whether it's infographics, illustrations, or striking imagery, our designers will help convey complex ideas and concepts in a visually engaging and accessible way.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Designing/Meeting%20deadlines.jpg",
+        "text": "Meeting deadlines with precision",
+        "description": "We understand the fast-paced nature of the publishing industry. With Media Pitch, you can count on timely delivery without compromising on quality. We'll work efficiently to meet your deadlines and ensure your publication is ready to hit the press.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Designing/Collaboration%20and%20communication.jpg",
+        "text": "Collaboration and communication",
+        "description": "We believe in the power of collaboration. Our designers will work closely with your team, listening to your ideas, and incorporating your feedback. We value open communication and strive to deliver designs that exceed your expectations.",
+        "link": "",
+        "color": ""
+      }
+    ]
+  },
+  "Photo-Editing": {
+    "pageImage": "https://i.pinimg.com/originals/a6/34/e9/a634e9b187a4f13d52352d19729a5575.jpg",
+    "editingTitle": "Photo Editing",
+    "editingDescription": "At Media Pitch, we offer professional photo editing services that bring your images to life. Whether you're a photographer, a business owner, or an individual looking to enhance your photos, our skilled team of editors is here to transform your images into stunning visuals that captivate and engage your audience.",
+    "finalText": "Elevate your images with Media Pitch's photo editing services. Let our expert editors enhance your photos, bring out their true potential, and create visuals that leave a lasting impression. <a href='contact-us.php'>Contact us</a> today to discuss your photo editing needs and discover how our expertise can take your images to the next level.",
+    "circleCenterText": "Why choose Media Pitch?",
+    "circleArray": [
+      {
+        "image": "images/Photo%20Editing/Expertise%20and%20attention%20to%20detail.jpg",
+        "text": "Expertise and attention to detail",
+        "description": "Our team of experienced photo editors understands the nuances of editing and the importance of every pixel. We meticulously analyze each image, applying the right adjustments, enhancements, and retouching techniques to bring out the best in your photos. From color correction and exposure adjustments to removing blemishes and background editing, we pay attention to every detail to ensure your images look flawless.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Photo%20Editing/Customized%20editing%20solutions1.jpg",
+        "text": "Customized editing solutions",
+        "description": "We understand that each photo has its own unique requirements. That's why we offer customized editing solutions tailored to your specific needs and preferences. Whether you're looking for a natural and authentic look or a creative and artistic touch, our editors will work closely with you to understand your vision and deliver results that exceed your expectations.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Photo%20Editing/Quick%20turnaround%20time1.jpg",
+        "text": "Quick turnaround time",
+        "description": "We value your time and understand the importance of timely delivery. With our efficient workflow and dedicated team, we ensure quick turnaround times without compromising on quality. Whether you have a single photo or a large batch of images, we'll work diligently to meet your deadlines and deliver edited photos that are ready to impress.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Photo%20Editing/Advanced%20editing%20techniques.jpg",
+        "text": "Advanced editing techniques",
+        "description": "Our editors stay up-to-date with the latest editing tools and techniques to provide you with the best results. From advanced retouching to image manipulation, we have the skills and knowledge to handle complex editing tasks. We'll bring your creative concepts to life, transforming your photos into works of art that make a lasting impact.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Photo%20Editing/Confidentiality%20and%20security1.jpg",
+        "text": "Confidentiality and security",
+        "description": "We understand the importance of privacy and the need to protect your valuable images. At Media Pitch, we have strict confidentiality protocols in place to ensure the security of your files. Your photos are safe with us, and we'll never share or use them without your consent.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Photo%20Editing/Affordable%20pricing%20options.jpg",
+        "text": "Affordable pricing options",
+        "description": "We believe that professional photo editing should be accessible to everyone. That's why we offer competitive and transparent pricing options that fit various budgets. Whether you're a professional photographer or an individual looking to enhance your personal photos, we have flexible pricing plans to meet your needs.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Photo%20Editing/Dedicated%20customer%20support1.jpg",
+        "text": "Dedicated customer support",
+        "description": "We're committed to providing exceptional customer service. Our friendly and knowledgeable support team is always ready to assist you, answer your questions, and address any concerns you may have. We pride ourselves on building long-term relationships with our clients, and we're here to support you throughout your photo editing journey.",
+        "link": "",
+        "color": "red"
+      }
+    ]
+  },
+  "Social-Media": {
+    "pageImage": "https://wallpapercave.com/wp/wp9215243.jpg",
+    "editingTitle": "Social Media",
+    "editingDescription": "At Media Pitch, we understand the power of social media in today's digital landscape. That's why we offer comprehensive social media services that help businesses thrive and make a meaningful impact online. With our expertise and strategic approach, we'll take your social media presence to the next level.",
+    "finalText": "Elevate your social media presence with Media Pitch. Let us help you build a thriving online community, create compelling content, and drive meaningful engagement. <a href='contact-us.php'>Contact us</a> today to discuss your social media needs and discover how our expertise can help you achieve social media success.",
+    "circleCenterText": "Why choose Media Pitch?",
+    "circleArray": [
+      {
+        "image": "images/Social%20Media/Strategic%20planning.jpg",
+        "image2": "images/Social%20Media/Strategic%20planning1.jpg",
+        "text": "Strategic planning",
+        "description": "We believe in the power of a well-defined social media strategy. Our team will work closely with you to understand your business goals, target audience, and unique brand voice. We'll develop a customized plan that aligns with your objectives and ensures maximum impact on social media platforms.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Social%20Media/content%20creation%20team1.jpg",
+        "image2": "images/Social%20Media/content%20creation%20team2.jpg",
+        "text": "Engaging content creation",
+        "description": "Content is key in the world of social media. Our talented content creators will craft compelling and shareable content that resonates with your audience. From attention-grabbing captions and engaging posts to captivating visuals and videos, we'll help you tell your brand's story in a way that sparks conversation and drives engagement.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Social%20Media/Community%20management.jpg",
+        "text": "Community management",
+        "description": "Building a strong and loyal community is essential for social media success. We'll manage your social media platforms, engaging with your audience, responding to comments and messages, and fostering meaningful connections. Our team will ensure that your brand's voice is consistently represented and that every interaction leaves a positive impression.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Social%20Media/Data-driven%20insights.jpg",
+        "text": "Data-driven insights",
+        "description": "We don't just rely on guesswork; we let data guide our social media strategies. Our experts will analyze key metrics and provide you with valuable insights into your social media performance. We'll track engagement, reach, conversions, and other relevant metrics to continuously optimize your social media presence and drive measurable results.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Social%20Media/Paid%20advertising.jpg",
+        "text": "Paid advertising expertise",
+        "description": "To maximize your social media reach and impact, we offer targeted paid advertising solutions. Our team will develop and manage highly effective ad campaigns that reach your desired audience, drive traffic, and generate leads. We'll optimize your ad spend to ensure the best return on investment for your social media advertising efforts.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Social%20Media/Social%20media%20monitoring.jpg",
+        "text": "Social media monitoring and reputation management",
+        "description": "We'll keep a close eye on your social media channels, monitoring conversations and brand mentions. If any issues arise, we'll act swiftly to protect your brand's reputation and handle any customer concerns with care and professionalism.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Social%20Media/Transparent%20reporting%20and%20communication.jpg",
+        "text": "Transparent reporting and communication",
+        "description": "We believe in transparency and keeping our clients informed. You'll receive regular reports outlining the performance of your social media campaigns, as well as clear and concise communication from our team. We're here to answer your questions, provide guidance, and collaborate with you every step of the way.",
+        "link": "",
+        "color": "red"
+      }
+    ]
+  },
+  "Website-Designing": {
+    "pageImage": "https://media.istockphoto.com/id/1305999733/photo/web-design-desktop.jpg?b=1&s=170667a&w=0&k=20&c=4yNOztDAVsxOG5bq-_-KwcVl3a3LlTSTWp5c43O7MvU=",
+    "editingTitle": "Website Designing",
+    "editingDescription": "At Media Pitch, we offer exceptional website designing services that combine creativity, functionality, and user experience to help your online presence stand out. Whether you need a new website from scratch or want to revamp your existing site, our team of skilled designers and developers is here to create a visually appealing and highly functional website that captures your brand's essence and drives results.",
+    "finalText": "Elevate your online presence with Media Pitch's website designing services. Let our expert team create a visually stunning and highly functional website that showcases your brand, captivates your audience, and drives business growth. <a href='contact-us.php'>Contact us</a> today to discuss your website designing needs and discover how we can help you succeed in the digital realm.",
+    "circleCenterText": "Why choose Media Pitch?",
+    "circleArray": [
+      {
+        "image": "images/Web%20Designing/Customized%20website%20designs.jpg",
+        "text": "Customized website designs",
+        "description": "We believe that every business is unique, and your website should reflect that. Our designers take the time to understand your brand, target audience, and business goals to create a customized website design that aligns with your vision. From color schemes and typography to layout and navigation, we ensure that your website not only looks stunning but also effectively communicates your message and captivates your visitors.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Web%20Designing/User-centric%20approach.jpg",
+        "text": "User-centric approach",
+        "description": "User experience is at the heart of our website designing process. We design websites that are intuitive, easy to navigate, and provide a seamless browsing experience across devices. By incorporating user-centric design principles, we ensure that your website engages visitors, encourages them to explore further, and ultimately converts them into customers or clients.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Web%20Designing/Mobile%20responsiveness.jpg",
+        "text": "Mobile responsiveness",
+        "description": "In today's mobile-first world, having a website that is mobile responsive is crucial. Our designers create websites that adapt seamlessly to different screen sizes and resolutions, providing an optimal user experience on smartphones, tablets, and desktops. With a mobile-responsive website, you can reach and engage with your audience effectively, regardless of the device they use.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Web%20Designing/Visual%20appeal%20and%20branding.jpg",
+        "text": "Visual appeal and branding",
+        "description": "A visually appealing website leaves a lasting impression on visitors. Our designers pay meticulous attention to detail, using high-quality visuals, graphics, and multimedia elements to create a visually stunning website that represents your brand identity. We ensure that your website design aligns with your branding guidelines, reinforcing brand recognition and credibility.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Web%20Designing/Functionality%20and%20performance.jpg",
+        "text": "Functionality and performance",
+        "description": "A great website not only looks good but also functions flawlessly. Our developers combine their technical expertise with industry best practices to build websites that are not only visually appealing but also highly functional and performant. We optimize website speed, implement smooth navigation, and integrate essential features and functionalities to enhance user experience and ensure your website performs at its best.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Web%20Designing/SEO-friendly%20designs.jpg",
+        "text": "SEO-friendly designs",
+        "description": "We understand the importance of search engine visibility and organic traffic. Our website designs are optimized for search engines, incorporating SEO best practices from the ground up. From clean code and proper URL structure to meta tags and responsive design, we ensure that your website is search engine friendly, helping you rank higher in search results and attract more organic traffic.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Web%20Designing/Web%20deisgn.jpg",
+        "text": "Ongoing support and maintenance",
+        "description": "Our commitment to your website doesn't end with the design and development process. We provide ongoing support and maintenance services to ensure that your website remains up-to-date, secure, and optimized. From regular backups and security updates to content management system (CMS) updates and troubleshooting, we take care of the technical aspects, allowing you to focus on your core business.",
+        "link": "",
+        "color": "red"
+      }
+    ]
+  },
+  "App-Development": {
+    "pageImage": "https://ravisah.in/images/mobile-app-development.gif",
+    "editingTitle": "App Development",
+    "editingDescription": "At Media Pitch, we specialize in app development services that bring your unique ideas to life. Our experienced team of developers and designers is dedicated to creating innovative and high-performance mobile applications that deliver exceptional user experiences.",
+    "finalText": "Take your business to the next level with Media Pitch's app development services. Let our expert team transform your ideas into a feature-rich and user-friendly app that engages your audience, drives customer loyalty, and boosts your business growth. <a href='contact-us.php'>Contact us</a> today to discuss your app development needs and discover how we can help you succeed in the mobile marketplace.",
+    "circleCenterText": "Why choose Media Pitch?",
+    "circleArray": [
+      {
+        "image": "images/Mobile%20App/Customized%20app%20solutions.jpg",
+        "text": "Customized app solutions",
+        "description": "We understand that every business has specific requirements and goals. Our app development process begins with a thorough understanding of your business needs, target audience, and objectives. We work closely with you to conceptualize, design, and develop a customized app that aligns with your brand identity and enhances your overall mobile strategy.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Mobile%20App/User-centric%20design.jpg",
+        "text": "User-centric design",
+        "description": "User experience is at the core of our app development approach. We focus on creating intuitive and user-friendly interfaces that engage your target audience and provide seamless navigation. By employing user-centric design principles, we ensure that your app is not only visually appealing but also easy to use, resulting in higher user engagement and customer satisfaction.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Mobile%20App/Cross-platform%20compatibility.jpg",
+        "text": "Cross-platform compatibility",
+        "description": "In today's multi-device world, it's essential to reach users across different platforms and devices. Our developers have expertise in developing apps that are compatible with major platforms, including iOS, Android, and web-based solutions. We utilize the latest technologies and frameworks to build responsive and scalable apps that offer a consistent experience across platforms.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Mobile%20App/Performance%20optimization.jpg",
+        "text": "Performance optimization",
+        "description": "We understand the importance of app performance in providing a positive user experience. Our development team follows industry best practices to optimize app performance, ensuring fast load times, smooth navigation, and efficient resource utilization. We conduct rigorous testing and quality assurance processes to identify and resolve any performance bottlenecks, delivering an app that performs flawlessly.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Mobile%20App/Integration%20capabilities.jpg",
+        "text": "Integration capabilities",
+        "description": "We have extensive experience in integrating third-party APIs and services to enhance the functionality and features of your app. Whether it's integrating social media platforms, payment gateways, location-based services, or other APIs, our developers ensure seamless integration to provide a comprehensive and feature-rich app experience.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Mobile%20App/Scalability%20and%20future-proofing.jpg",
+        "text": "Scalability and future-proofing",
+        "description": "Our app development process takes scalability into consideration from the start. We build apps with a modular and flexible architecture that allows for easy updates, enhancements, and future expansions. This ensures that your app can adapt to evolving business needs and technological advancements, providing long-term value and minimizing development costs in the future.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Designing/Meeting%20deadlines.jpg",
+        "text": "Timely delivery and support",
+        "description": "We understand the importance of timely delivery in the fast-paced digital world. Our project management approach ensures that your app development project is completed on time and within budget. Additionally, we provide ongoing support and maintenance services to ensure that your app remains up-to-date, secure, and optimized for performance.",
+        "link": "",
+        "color": "red"
+      }
+    ]
+  },
+  "Cloud-Infrastructure": {
+    "pageImage": "https://e0.pxfuel.com/wallpapers/349/864/desktop-wallpaper-cloud-computing-computing-cloud-computing-and-computing-background-data-cloud.jpg",
+    "editingTitle": "Cloud Infrastructure",
+    "editingDescription": "At Media Pitch, we offer comprehensive cloud infrastructure services to help businesses harness the power of cloud computing for enhanced scalability, flexibility, and efficiency. Our team of experts specializes in designing, implementing, and managing cloud infrastructure solutions tailored to meet your unique business needs.",
+    "finalText": "Trust Media Pitch to be your partner in harnessing the power of cloud infrastructure. Let us guide you through the complexities of cloud computing, deliver a robust infrastructure that meets your business objectives, and provide ongoing support to ensure your cloud environment remains secure, scalable, and optimized. <a href='contact-us.php'>Contact us</a> today to explore how our cloud infrastructure services can benefit your organization.",
+    "circleCenterText": "Why choose Media Pitch for your cloud infrastructure requirements?",
+    "circleArray": [
+      {
+        "image": "images/Cloud%20infra/Customized%20cloud%20solutions.jpg",
+        "text": "Customized cloud solutions",
+        "description": "We understand that every business has distinct requirements when it comes to cloud infrastructure. Our team works closely with you to analyze your business goals, IT environment, and workload requirements. We then design and implement a customized cloud infrastructure solution that aligns with your specific needs, whether it's public, private, or hybrid cloud architecture.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Cloud%20infra/Scalability%20and%20flexibility.jpg",
+        "text": "Scalability and flexibility",
+        "description": "Cloud infrastructure offers unmatched scalability and flexibility, allowing businesses to easily adapt to changing demands. We help you leverage the cloud's elasticity by designing a scalable infrastructure that can dynamically adjust resources based on your workload requirements. This ensures optimal performance, cost-efficiency, and the ability to handle sudden spikes in demand.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Cloud%20infra/Cost%20optimization.jpg",
+        "text": "Cost optimization",
+        "description": "Our cloud infrastructure services focus on optimizing your costs while maximizing performance. By leveraging cloud resources and technologies, we help you eliminate the need for upfront infrastructure investments, reduce maintenance costs, and pay only for the resources you use. We also provide cost monitoring and optimization strategies to ensure you're getting the most value from your cloud investment.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Cloud%20infra/Security%20and%20data%20protection.jpg",
+        "text": "Security and data protection",
+        "description": "Security is a top priority in the cloud environment, and we take it seriously. We implement robust security measures, including data encryption, access controls, and regular security updates, to safeguard your sensitive information. Our team adheres to industry best practices and compliance standards to ensure your data is protected at all times.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Cloud%20infra/Seamless%20migration%20and%20integration1.jpg",
+        "text": "Seamless migration and integration",
+        "description": "If you're considering migrating your existing infrastructure to the cloud, we have the expertise to make the process seamless and efficient. Our team will assess your current infrastructure, develop a migration plan, and handle the entire migration process, ensuring minimal disruption to your business operations. We also assist with integrating your cloud infrastructure with existing systems and applications for seamless data flow and enhanced productivity.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Cloud%20infra/Continuous%20monitoring%20and%20support.jpg",
+        "text": "Continuous monitoring and support",
+        "description": "Once your cloud infrastructure is up and running, we provide continuous monitoring and support to ensure optimal performance, uptime, and security. Our team proactively monitors your cloud environment, identifies and resolves any issues, and provides timely support whenever you need assistance. With our comprehensive support services, you can focus on your core business while we handle the technical aspects of your cloud infrastructure.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Cloud%20infra/Future-proofing%20and%20innovation.jpg",
+        "text": "Future-proofing and innovation",
+        "description": "As technology evolves, so should your cloud infrastructure. We help future-proof your business by staying up-to-date with the latest cloud technologies, trends, and best practices. We continuously evaluate and recommend new innovations that can enhance your infrastructure's performance, security, and efficiency, ensuring you stay ahead of the competition.",
+        "link": "",
+        "color": "red"
+      }
+    ]
+  },
+  "Marketing":{
+    "pageImage": "https://e0.pxfuel.com/wallpapers/51/297/desktop-wallpaper-marketing-background-email-marketing.jpg",
+    "editingTitle": "Marketing",
+    "editingDescription": "We are more than a marketing firm. We are storytellers, strategists, and designers committed to elevating your brand to its fullest potential. Our comprehensive marketing solutions are tailored to bring your brand story to life, create meaningful connections with your audience, and drive tangible business results.",
+    "finalText": "Ready for marketing that makes a difference? Partner with Media Pitch and let us drive your brand forward. <a href='contact-us.php'>Contact us</a> today to begin your journey to enhanced brand visibility and success.",
+    "circleCenterText": "Why choose us?",
+    "circleArray": [
+      {
+        "image": "images/Marketing/Strategic%20Storytelling.jpg",
+        "text": "Strategic Storytelling",
+        "description": "We fuse creativity with strategy to craft compelling brand narratives that engage and inspire your audience.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Marketing/Data-Driven%20Approach.jpg",
+        "text": "Data-Driven Approach",
+        "description": "We leverage data insights to inform our marketing strategies, ensuring effective and measurable campaigns.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Marketing/Multi%20Channels.jpg",
+        "text": "Multichannel Expertise",
+        "description": "From digital to traditional media, we excel in creating impactful marketing across various platforms.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Marketing/Customized%20Solutions.jpg",
+        "text": "Customized Solutions",
+        "description": "We offer personalized marketing solutions that align with your unique business objectives and target audience.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Marketing/Innovative%20Tactics.png",
+        "text": "Innovative Tactics",
+        "description": "We stay ahead of marketing trends to ensure your brand is at the forefront of innovation.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Marketing/Results-Focused.jpg",
+        "text": "Results-Focused",
+        "description": "Our campaigns are designed to drive brand awareness, customer engagement, and conversion rates.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Marketing/Collaborative%20Partnership.jpg",
+        "text": "Collaborative Partnership",
+        "description": "We work closely with you, maintaining open communication and transparency throughout the process.",
+        "link": "",
+        "color": "red"
+      }
+    ]  
+  },
+  "Public-Relations":{
+    "pageImage": "https://thumbs.dreamstime.com/z/pr-public-relations-concept-communication-advertising-marketing-strategy-209188850.jpg",
+    "editingTitle": "Public Relations",
+    "editingDescription": "Media Pitch provides strategic Public Relations services designed to shape and manage your organization's reputation. Our team of PR professionals understands the nuances of effective communication and the importance of a trustworthy brand image in today's competitive landscape.",
+    "finalText": "Ready to elevate your brand's public image? Trust Media Pitch for strategic Public Relations services that resonate with your audience. Contact us today to start crafting your compelling brand narrative.",
+    "circleCenterText": "Why choose us?",
+    "circleArray": [
+      {
+        "image": "images/Public%20Relations/Strategic%20Communications.jpg",
+        "text": "Strategic Communications",
+        "description": "We develop and implement effective communication strategies to enhance your public image and foster positive relationships with stakeholders.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Public%20Relations/Reputation%20Management.jpg",
+        "text": "Reputation Management",
+        "description": "We specialize in managing your reputation, mitigating crises, and turning potential negatives into positives.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Public%20Relations/Media%20Relations.jpg",
+        "text": "Media Relations",
+        "description": "Our strong relationships with media outlets ensure your brand gets the attention it deserves.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Public%20Relations/Customized%20PR%20Campaigns.jpg",
+        "text": "Customized PR Campaigns",
+        "description": "We design personalized PR campaigns that align with your brand's values and goals.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Public%20Relations/Transparency%20and%20Honesty.jpg",
+        "text": "Transparency and Honesty",
+        "description": "We believe in honest, clear, and transparent communication to build trust and credibility for your brand.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Public%20Relations/Measurable%20Success.jpg",
+        "text": "Measurable Success",
+        "description": "We use key metrics to measure the success of our PR efforts, providing you with tangible results.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Public%20Relations/Ongoing%20Support.jpg",
+        "text": "Collaborative Approach",
+        "description": "We work closely with you, providing regular updates and feedback throughout the process.",
+        "link": "",
+        "color": "red"
+      }
+    ]  
+  },
+  "Trade-Shows":{
+    "pageImage": "https://thehustle.co/wp-content/uploads/2019/04/SXSW-Trade-Show-2018-photo-by-merrick-ales-1439x810-1-1.jpg",
+    "editingTitle": "Trade Shows",
+    "editingDescription": "Media Pitch offers comprehensive Trade Show services designed to effectively showcase your brand and maximize your return on investment. We understand that trade shows provide a unique opportunity for direct engagement with potential customers, and we're here to help you make the most of that opportunity.",
+    "finalText": "Ready to make a memorable impression at your next trade show? Partner with Media Pitch for all-inclusive trade show services that ensure maximum visibility and engagement. Contact us today to begin planning for your successful exhibition. Together, let's make your brand the talk of the show.",
+    "circleCenterText": "Why choose us?",
+    "circleArray": [
+      {
+        "image": "images/Trade%20Show/Creative%20Design.jpg",
+        "text": "Creative Design",
+        "description": "We create eye-catching booth designs that align with your brand identity and stand out from the crowd.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Trade%20Show/Strategic%20Planning.jpg",
+        "text": "Strategic Planning",
+        "description": "We handle all aspects of your trade show participation, from planning to execution.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Trade%20Show/Engagement%20Strategies.jpg",
+        "text": "Engagement Strategies",
+        "description": "We devise strategies to engage visitors, ensuring memorable interactions that convert prospects into customers.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Trade%20Show/Seamless%20Coordination.jpg",
+        "text": "Seamless Coordination",
+        "description": "We take care of all the logistics, ensuring a stress-free trade show experience for you.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Trade%20Show/Customized%20Solutions.jpg",
+        "text": "Customized Solutions",
+        "description": "We provide tailored solutions based on your specific objectives and target audience.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Trade%20Show/Result-Driven%20Approach.jpg",
+        "text": "Result-Driven Approach",
+        "description": "Our services are designed to drive brand recognition, generate leads, and facilitate valuable business connections.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Trade%20Show/Ongoing%20Support.jpg",
+        "text": "Ongoing Support",
+        "description": "We provide full support throughout the process, ensuring your trade show participation is a resounding success.",
+        "link": "",
+        "color": ""
+      }
+    ]  
+  },
+  "Translation-Transcription": {
+      "pageImage": "https://transpitch.com/images/trans_pitch_social_banner.png",
+      "editingTitle": "Translation & Transcription",
+      "editingDescription": "Whether you require accurate translations, efficient transcriptions, or meticulous language refinement, Media Pitch is your gateway to global engagement. You can even translate and transcribe your audio and video files into text through our AI-powered online platform Trans Pitch.",
+      "finalText": "Trust Media Pitch and its AI-powered online platform Trans Pitch for top-tier translation, transcription, and language enhancement services that bridge languages and cultures. Contact us today to start your project and explore the power of perfect communication.",
+      "circleCenterText": "Why choose Media Pitch?",
+      "circleArray": [
+        {
+          "image": "images/Translation-Transcription/undraw_visionary_technology_re_jfp7.svg",
+          "text": "Advanced Technology Meets Expert Linguistics",
+          "description": "Our AI-powered platform, Trans Pitch, integrates the latest technology with linguistic expertise to provide precise translations and transcriptions. Whether it's documents, audio, or video, we ensure your message retains its original essence across languages.",
+          "link": "",
+          "color": ""
+        },
+        {
+          "image": "images/Translation-Transcription/undraw_hang_out_re_udl4.svg",
+          "text": "Human Touch for Nuanced Accuracy",
+          "description": "Beyond technology, the human element is crucial in language services. Our professional linguists review and refine each project, ensuring the final output resonates with cultural relevance and contextual accuracy. This hybrid approach guarantees that your translations go beyond mere words to convey true meaning.",
+          "link": "",
+          "color": ""
+        },
+        {
+          "image": "images/Translation-Transcription/undraw_business_deal_re_up4u.svg",
+          "text": "Comprehensive Services Tailored to Your Needs",
+          "description": "We understand that each client's requirements are unique. That’s why we offer customized services that cater to your specific needs. From straightforward document translations to complex audio and video transcriptions, we tailor our solutions to match your objectives.",
+          "link": "",
+          "color": ""
+        },
+        {
+          "image": "images/Translation-Transcription/undraw_observations_re_ohja.svg",
+          "text": "Exceptional Attention to Detail",
+          "description": "Our team is meticulous about every aspect of language. From grammar and punctuation to style and tone, we ensure that your content is polished, professional, and ready to make a global impact.",
+          "link": "",
+          "color": ""
+        },
+        {
+          "image": "images/Translation-Transcription/undraw_content_creator_re_pt5b.svg",
+          "text": "Engaging and Effective Communication",
+          "description": "At Media Pitch, we're not just translators; we're storytellers. We transform your narratives into compelling content that engages audiences, regardless of their language.",
+          "link": "",
+          "color": ""
+        },
+        {
+          "image": "images/Translation-Transcription/undraw_begin_chat_re_v0lw.svg",
+          "text": "Revitalization with Fresh Perspectives",
+          "description": "Sometimes a fresh look can redefine content. Our linguists can rejuvenate your existing translations, enhancing clarity, appeal, and effectiveness to meet the evolving market demands.",
+          "link": "",
+          "color": ""
+        },
+        {
+          "image": "images/Translation-Transcription/undraw_time_management_re_tk5w.svg",
+          "text": "Timely Delivery with Uncompromised Quality",
+          "description": "We value your time as much as the quality of our work. With Media Pitch, you can rely on us to meet your deadlines with content that is both timely and exceptional in quality.",
+          "link": "",
+          "color": ""
+        },
+        {
+          "image": "images/Translation-Transcription/undraw_security_re_a2rk.svg",
+          "text": "Utmost Confidentiality and Professionalism",
+          "description": "We treat your content with the highest degree of confidentiality and professionalism. Entrust us with your projects, and experience peace of mind knowing your information is handled with care and respect.",
+          "link": "",
+          "color": ""
+        }
+      ]
+  }, 
+"Book-Publishing": {
+  "pageImage": "https://images.unsplash.com/photo-1512820790803-83ca734da794",
+  "editingTitle": "Book Publishing",
+  "editingDescription": "Media Pitch offers end-to-end book publishing services designed to transform your manuscript into a professionally published, market-ready product. Backed by real publishing experience, we go beyond basic services to help authors succeed in competitive marketplaces.",
+  "finalText": "Ready to publish your book and reach the right audience? Partner with Media Pitch for comprehensive publishing solutions that focus on visibility, sales, and long-term growth. Contact us today to start your publishing journey and turn your ideas into a successful book.",
+  "circleCenterText": "Why choose Media Pitch?",
+  
+  "circleArray": [
+    {
+      "image": "https://images.unsplash.com/photo-1645723199562-d4c0256a774b?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "text": "Publisher’s Approach, Not Just a Service",
+      "description": "We don’t just help you upload a book — we build a product that sells. Our approach is shaped by real publishing experience, ensuring your book is positioned for success in the market.",
+      "link": "",
+      "color": ""
+    },
+    {
+      "image": "https://plus.unsplash.com/premium_photo-1726768997539-64915337c655?q=80&w=1530&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "text": "Proven Market Strategies",
+      "description": "We apply practical insights from our own publishing experience, including pricing strategies, category selection, and cover designs that improve clicks and conversions.",
+      "link": "",
+      "color": ""
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1768428581300-157f55d32cc2?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "text": "End-to-End Publishing Support",
+      "description": "From manuscript formatting and editing to cover design, ISBN setup, and print-ready files, we handle the complete publishing process so you can focus on your content.",
+      "link": "",
+      "color": ""
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1764337500043-e9171c903617?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "text": "Multi-Platform Distribution",
+      "description": "We list and distribute your book across major Indian marketplaces like Amazon, Flipkart, and Meesho, making it easy for readers to find and purchase your book.",
+      "link": "",
+      "color": ""
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=1551&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "text": "SEO-Optimised Listings",
+      "description": "We optimise your book listings with keyword-rich titles, descriptions, backend search terms, and strategic category placement to improve discoverability and rankings.",
+      "link": "",
+      "color": ""
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1726066012749-f81bf4422d4e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "text": "Marketing & Growth Support",
+      "description": "Beyond publishing, we support your growth with Google Discover-friendly content, blog integration, social media positioning, and marketplace advertising strategies.",
+      "link": "",
+      "color": ""
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1686061593213-98dad7c599b9?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "text": "Built on Real Publishing Experience",
+      "description": "Our hands-on experience with publishing our own books gives us deep insights into reader behaviour, pricing sensitivity, and platform algorithms that drive consistent sales.",
+      "link": "",
+      "color": ""
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1659315570800-5856a04bbbf7?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "text": "Designed for Modern Authors",
+      "description": "Whether you're a first-time author, independent writer, educator, or niche creator, our services are tailored to help you succeed in India’s growing e-commerce ecosystem.",
+      "link": "",
+      "color": ""
+    }
+  ]
+}
+  
+}
