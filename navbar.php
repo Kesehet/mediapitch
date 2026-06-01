@@ -154,3 +154,4 @@ usort($links[1]['submenu'], function($a, $b) {
         </nav>
       </div>
 </header>
+<?php include_once __DIR__ . "/chatbot-widget.php"; ?>
