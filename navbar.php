@@ -43,6 +43,10 @@ $links = [
                 'text' => 'Cloud Infrastructure',
             ],
             [
+                'url' => 'services.php?for-the-best=Chatbots',
+                'text' => 'Chatbots',
+            ],
+            [
                 'url' => 'services.php?for-the-best=Marketing',
                 'text' => 'Marketing',
             ],

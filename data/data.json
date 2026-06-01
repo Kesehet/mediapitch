@@ -32,6 +32,10 @@
       {
         "i": "https://e0.pxfuel.com/wallpapers/349/864/desktop-wallpaper-cloud-computing-computing-cloud-computing-and-computing-background-data-cloud.jpg",
         "t": "Cloud Infrastructure"
+      },
+      {
+        "i": "images/Chatbots/chatbot-service.jpg",
+        "t": "Chatbots"
       }
     ],
     "circleCenterText": "Solution For All Media Needs",
@@ -88,6 +92,13 @@
         "description": "Embrace the future of business with our comprehensive cloud infrastructure services. We help you leverage the power of cloud computing, enhancing scalability, flexibility, and efficiency. Our cloud experts design, implement, and manage tailored cloud solutions that align with your unique business needs. With Media Pitch, your transition to the cloud is smooth and seamless.",
         "link": "",
         "color": "red"
+      },
+      {
+        "image": "images/Chatbots/chatbot-service.jpg",
+        "text": "Chatbots",
+        "description": "Media Pitch builds intelligent chatbots that help businesses answer customer questions, capture leads, explain services, and provide faster support. We can plan the conversation flow, connect AI models, add safety guardrails, log sessions, and integrate the assistant into your website.",
+        "link": "services.php?for-the-best=Chatbots",
+        "color": ""
       }
     ]
   },
@@ -737,7 +748,58 @@
           "color": ""
         }
       ]
-  }, 
+  },
+  "Chatbots": {
+    "pageImage": "images/Chatbots/chatbot-service.jpg",
+    "editingTitle": "Chatbot Development",
+    "editingDescription": "Media Pitch creates custom AI-powered chatbots for websites and businesses. From customer support assistants and lead capture bots to knowledge-base helpers and service recommenders, we design conversational experiences that match your brand, answer customer questions, and guide visitors toward meaningful action.",
+    "finalText": "Ready to add an intelligent assistant to your website? Partner with Media Pitch for chatbot strategy, prompt design, Gemini/OpenAI integration, secure logging, email summaries, and polished website deployment. <a href='contact-us.php'>Contact us</a> today to discuss your chatbot project.",
+    "circleCenterText": "Why choose Media Pitch for chatbots?",
+    "circleArray": [
+      {
+        "image": "images/Chatbots/chatbot-service.jpg",
+        "text": "Website-ready AI assistants",
+        "description": "We build chatbots that fit naturally into your website, answer common customer questions, explain your services, and help visitors take the next step without making the page feel crowded.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Chatbots/chatbot-service.jpg",
+        "text": "Strong prompts and safe behavior",
+        "description": "A chatbot needs more than an API key. We create clear system prompts, business rules, refusal behavior for unsafe requests, and response guidelines so the assistant stays helpful, professional, and aligned with your brand.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Chatbots/chatbot-service.jpg",
+        "text": "Lead capture and session logs",
+        "description": "We can log customer conversations, collect useful context, summarize discussions, and send email reports to your team so every meaningful enquiry is easy to follow up.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Chatbots/chatbot-service.jpg",
+        "text": "Custom integrations",
+        "description": "Depending on your needs, we can connect chatbots with contact forms, email workflows, knowledge bases, analytics, CRMs, or business tools to turn conversations into practical outcomes.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Chatbots/chatbot-service.jpg",
+        "text": "Brand-matched interface",
+        "description": "We design the chatbot overlay, colors, typography, messaging style, and mobile behavior so the assistant feels like part of your website rather than a generic plugin.",
+        "link": "",
+        "color": ""
+      },
+      {
+        "image": "images/Chatbots/chatbot-service.jpg",
+        "text": "Ongoing improvements",
+        "description": "After launch, chatbot transcripts can reveal what customers ask most often. We use those insights to improve answers, add missing content, and make the assistant more useful over time.",
+        "link": "",
+        "color": "red"
+      }
+    ]
+  },
 "Book-Publishing": {
   "pageImage": "https://images.unsplash.com/photo-1512820790803-83ca734da794",
   "editingTitle": "Book Publishing",
