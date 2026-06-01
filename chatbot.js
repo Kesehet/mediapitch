@@ -29,10 +29,104 @@
   function addMessage(text, type) {
     var node = document.createElement('div');
     node.className = 'mp-chatbot__message mp-chatbot__message--' + type;
-    node.textContent = text;
+    node.innerHTML = renderMarkdown(text);
     messages.appendChild(node);
     messages.scrollTop = messages.scrollHeight;
     return node;
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function sanitizeUrl(value) {
+    var url = String(value || '').trim();
+    if (/^(https?:\/\/|mailto:|tel:)/i.test(url) || /^[a-z0-9._/-]+\.php(?:[?#][^\s]*)?$/i.test(url)) {
+      return escapeHtml(url);
+    }
+    return '#';
+  }
+
+  function renderInlineMarkdown(text) {
+    var html = escapeHtml(text);
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (_, label, url) {
+      return '<a href="' + sanitizeUrl(url) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
+    });
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+    html = html.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+    html = html.replace(/(^|[^_])_([^_\n]+)_/g, '$1<em>$2</em>');
+    return html;
+  }
+
+  function renderMarkdown(text) {
+    var lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
+    var output = [];
+    var listOpen = false;
+    var orderedListOpen = false;
+
+    function closeList() {
+      if (listOpen) {
+        output.push('</ul>');
+        listOpen = false;
+      }
+      if (orderedListOpen) {
+        output.push('</ol>');
+        orderedListOpen = false;
+      }
+    }
+
+    lines.forEach(function (line) {
+      var trimmed = line.trim();
+      var bullet = trimmed.match(/^[-*]\s+(.+)$/);
+      var ordered = trimmed.match(/^\d+\.\s+(.+)$/);
+      var heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+
+      if (bullet) {
+        if (orderedListOpen) {
+          output.push('</ol>');
+          orderedListOpen = false;
+        }
+        if (!listOpen) {
+          output.push('<ul>');
+          listOpen = true;
+        }
+        output.push('<li>' + renderInlineMarkdown(bullet[1]) + '</li>');
+        return;
+      }
+
+      if (ordered) {
+        if (listOpen) {
+          output.push('</ul>');
+          listOpen = false;
+        }
+        if (!orderedListOpen) {
+          output.push('<ol>');
+          orderedListOpen = true;
+        }
+        output.push('<li>' + renderInlineMarkdown(ordered[1]) + '</li>');
+        return;
+      }
+
+      closeList();
+
+      if (trimmed === '') {
+        output.push('<br>');
+      } else if (heading) {
+        output.push('<strong class="mp-chatbot__heading">' + renderInlineMarkdown(heading[2]) + '</strong>');
+      } else {
+        output.push('<p>' + renderInlineMarkdown(trimmed) + '</p>');
+      }
+    });
+
+    closeList();
+    return output.join('');
   }
 
   function request(payload, keepalive) {
