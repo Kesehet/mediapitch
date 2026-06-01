@@ -225,7 +225,15 @@ function chatbot_send_email($to, $subject, $body)
 
     $from = chatbot_env('CHATBOT_FROM_EMAIL', $to);
     $headers = "From: " . $from . "\r\nContent-Type: text/plain; charset=UTF-8\r\n";
-    return mail($to, $subject, $body, $headers);
+    $sent = mail($to, $subject, $body, $headers);
+    chatbot_mail_log($sent ? 'mail() accepted message' : 'mail() failed to accept message');
+    return $sent;
+}
+
+function chatbot_mail_log($message)
+{
+    $line = '[' . date('c') . '] ' . $message . "\n";
+    file_put_contents(__DIR__ . '/data/chatbot_mail.log', $line, FILE_APPEND | LOCK_EX);
 }
 
 function chatbot_send_smtp_email($to, $subject, $body)
@@ -244,7 +252,8 @@ function chatbot_send_smtp_email($to, $subject, $body)
         throw new RuntimeException('SMTP connection failed: ' . $errstr);
     }
 
-    $read = function () use ($socket) {
+    $lastResponse = '';
+    $read = function () use ($socket, &$lastResponse) {
         $response = '';
         while ($line = fgets($socket, 515)) {
             $response .= $line;
@@ -252,6 +261,7 @@ function chatbot_send_smtp_email($to, $subject, $body)
                 break;
             }
         }
+        $lastResponse = trim($response);
         return $response;
     };
 
@@ -301,6 +311,7 @@ function chatbot_send_smtp_email($to, $subject, $body)
         throw new RuntimeException('SMTP DATA failed: ' . trim($response));
     }
 
+    chatbot_mail_log('SMTP accepted message to ' . $to . ' from ' . $from . ': ' . trim($response));
     $send('QUIT');
     fclose($socket);
     return true;
@@ -327,4 +338,3 @@ function chatbot_email_session($session)
     chatbot_send_email(chatbot_env('CHATBOT_ADMIN_EMAIL', 'admin@mediapitch.in'), $subject, $body);
     return true;
 }
-

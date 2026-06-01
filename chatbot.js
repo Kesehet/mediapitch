@@ -100,6 +100,17 @@
       });
   });
 
+  input.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      if (form.requestSubmit) {
+        form.requestSubmit();
+      } else {
+        form.dispatchEvent(new Event('submit', {cancelable: true}));
+      }
+    }
+  });
+
   endButton.addEventListener('click', function () {
     if (sessionStorage.getItem(finalizedKey) === '1') {
       addMessage('This chat has already been sent to the Media Pitch team.', 'status');
@@ -129,4 +140,3 @@
       .catch(function () {});
   });
 })();
-
