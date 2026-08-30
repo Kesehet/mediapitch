@@ -11,13 +11,14 @@ return [
     // Generate with: php -r "echo base64_encode(random_bytes(32)), PHP_EOL;"
     'app_key' => getenv('OLLAMA_PROXY_APP_KEY') ?: 'CHANGE_ME_BASE64_32_BYTE_KEY',
 
-    // Comma-separated Ollama Cloud API keys. They are never sent to proxy users.
+    // Comma-separated Ollama Cloud API keys. Never exposed to proxy users.
     'upstream_keys' => array_values(array_filter(array_map('trim', explode(',', getenv('OLLAMA_PROXY_UPSTREAM_KEYS') ?: '')))),
     'upstream_base_url' => rtrim(getenv('OLLAMA_PROXY_UPSTREAM_BASE_URL') ?: 'https://ollama.com', '/'),
 
-    // Default limit for newly registered users. 0 means unlimited.
-    'default_daily_request_limit' => (int) (getenv('OLLAMA_PROXY_DAILY_REQUEST_LIMIT') ?: 100),
+    // Admin password for approving users and changing limits.
+    'admin_password' => getenv('OLLAMA_PROXY_ADMIN_PASSWORD') ?: 'CHANGE_ME_LONG_ADMIN_PASSWORD',
 
-    // Registration can later be changed to an approval workflow without changing API keys.
+    // Default daily limit assigned to approved users. 0 means unlimited.
+    'default_daily_request_limit' => (int) (getenv('OLLAMA_PROXY_DAILY_REQUEST_LIMIT') ?: 100),
     'registration_enabled' => filter_var(getenv('OLLAMA_PROXY_REGISTRATION_ENABLED') ?: 'true', FILTER_VALIDATE_BOOLEAN),
 ];
