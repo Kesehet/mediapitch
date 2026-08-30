@@ -22,18 +22,16 @@ function proxy_db(): PDO
     $pdo->exec('PRAGMA journal_mode=WAL');
     $pdo->exec('PRAGMA foreign_keys=ON');
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,api_key_hash TEXT NOT NULL UNIQUE,api_key_cipher TEXT NOT NULL,daily_request_limit INTEGER NOT NULL DEFAULT 100,is_active INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,last_login_at TEXT NULL)");
-    $columns = $pdo->query('PRAGMA table_info(users)')->fetchAll();
-    $hasUsername = false;
-    foreach ($columns as $column) { if (($column['name'] ?? '') === 'username') { $hasUsername = true; break; } }
-    if (!$hasUsername) {
-        $pdo->exec('ALTER TABLE users ADD COLUMN username TEXT NULL');
-        $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)');
-    }
     $pdo->exec("CREATE TABLE IF NOT EXISTS usage_logs (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,endpoint TEXT NOT NULL,model TEXT NULL,http_status INTEGER NOT NULL,request_bytes INTEGER NOT NULL DEFAULT 0,response_bytes INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE)");
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_usage_user_created ON usage_logs(user_id, created_at)');
     return $pdo;
 }
 
+function proxy_username_storage(string $username): string { return strtolower($username) . '@proxy.local'; }
+function proxy_display_username(array $user): string {
+    $email = (string)($user['email'] ?? '');
+    return str_ends_with($email, '@proxy.local') ? substr($email, 0, -12) : $email;
+}
 function proxy_app_key(): string { $decoded=base64_decode((string)proxy_config()['app_key'],true); if($decoded===false||strlen($decoded)!==SODIUM_CRYPTO_SECRETBOX_KEYBYTES){http_response_code(503);exit('Invalid OLLAMA_PROXY_APP_KEY configuration.');} return $decoded; }
 function proxy_encrypt(string $plain): string { $nonce=random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES); return base64_encode($nonce.sodium_crypto_secretbox($plain,$nonce,proxy_app_key())); }
 function proxy_decrypt(string $cipher): string { $blob=base64_decode($cipher,true); if($blob===false||strlen($blob)<=SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)return ''; $nonce=substr($blob,0,SODIUM_CRYPTO_SECRETBOX_NONCEBYTES); $plain=sodium_crypto_secretbox_open(substr($blob,SODIUM_CRYPTO_SECRETBOX_NONCEBYTES),$nonce,proxy_app_key()); return $plain===false?'':$plain; }
