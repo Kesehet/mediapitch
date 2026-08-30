@@ -4,13 +4,15 @@ RewriteEngine On
 # Never expose application internals or the SQLite database.
 RewriteRule ^(?:data|lib\.php|config\.php|README\.md)(?:/|$) - [F,L]
 <FilesMatch "^(?:\.env|\.env\..*|config\.php|lib\.php|README\.md)$">
-    Require all denied
+  Require all denied
 </FilesMatch>
 
 # Ollama-compatible proxy endpoints.
 RewriteRule ^api/(chat|generate|embed|embeddings)/?$ api.php?endpoint=$1 [QSA,L]
 
-# Keep application pages clean.
+# Application pages.
 RewriteRule ^login/?$ index.php?action=login [QSA,L]
-RewriteRule ^register/?$ index.php?action=register [QSA,L]
+RewriteRule ^register/?$ apply.php [QSA,L]
+RewriteRule ^apply/?$ apply.php [QSA,L]
 RewriteRule ^logout/?$ index.php?action=logout [QSA,L]
+RewriteRule ^admin/?$ admin.php [QSA,L]
