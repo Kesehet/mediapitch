@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (($_POST['form'] ?? '') === 'login') {
         $username = trim((string)($_POST['username'] ?? ''));
         $apiKey = (string)($_POST['password'] ?? '');
-        $stmt = proxy_db()->prepare('SELECT * FROM users WHERE username = ? AND is_active = 1');
-        $stmt->execute([$username]);
+        $stmt = proxy_db()->prepare('SELECT * FROM users WHERE email = ? AND is_active = 1');
+        $stmt->execute([proxy_username_storage($username)]);
         $user = $stmt->fetch();
         if (!$user || !password_verify($apiKey, (string)$user['password_hash'])) {
             usleep(300000);
@@ -67,7 +67,7 @@ function h(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 
 <?php if (!$user): ?>
 <div class="auth card"><div class="brand">MediaPitch Ollama Proxy</div><h1>Log in</h1><p class="muted">Use the username issued by the admin. Your API key is also your password.</p><?php if ($error): ?><div class="error"><?= h($error) ?></div><?php endif; ?><form method="post"><input type="hidden" name="csrf" value="<?= h(proxy_csrf_token()) ?>"><input type="hidden" name="form" value="login"><label>Username</label><input type="text" name="username" autocomplete="username" required><label>API key / password</label><input type="password" name="password" autocomplete="current-password" required><button type="submit">Log in</button></form></div>
 <?php else: ?>
-<div class="top"><div><div class="brand">MediaPitch Ollama Proxy</div><div class="muted"><?= h((string)($user['username'] ?: 'User')) ?></div></div><a class="link" href="<?= h($base) ?>/logout">Log out</a></div>
+<div class="top"><div><div class="brand">MediaPitch Ollama Proxy</div><div class="muted"><?= h(proxy_display_username($user)) ?></div></div><a class="link" href="<?= h($base) ?>/logout">Log out</a></div>
 <div class="grid"><div class="card"><div class="muted">Requests today</div><div class="stat"><?= $usedToday ?><?= (int)$user['daily_request_limit'] > 0 ? ' / ' . (int)$user['daily_request_limit'] : '' ?></div></div><div class="card"><div class="muted">Account status</div><div class="stat">Active</div></div></div>
 <div class="card"><h2>Your API key</h2><p class="muted">This is also your login password. Use it as the Bearer token for proxy requests.</p><div class="key"><?= h($apiKey) ?></div></div>
 <div class="card"><h2>Quick test</h2><div class="code">curl <?= h('https://mediapitch.in' . $base . '/api/chat') ?> \
