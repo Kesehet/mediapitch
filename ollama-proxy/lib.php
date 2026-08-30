@@ -54,6 +54,20 @@ function proxy_db(): PDO
     }
 }
 
+function proxy_username_storage(string $username): string
+{
+    return strtolower(trim($username)) . '@proxy.local';
+}
+
+function proxy_username_display(string $stored): string
+{
+    $suffix = '@proxy.local';
+    if (str_ends_with(strtolower($stored), $suffix)) {
+        return substr($stored, 0, -strlen($suffix));
+    }
+    return $stored;
+}
+
 function proxy_app_key(): string
 {
     $config = proxy_config();
