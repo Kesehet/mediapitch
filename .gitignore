@@ -1,3 +1,5 @@
 .env
 data/chatbot_logs/
 data/chatbot_mail.log
+ollama-proxy/config.php
+ollama-proxy/data/
