@@ -39,12 +39,9 @@ function proxy_db(): PDO
     static $pdo;
     if ($pdo instanceof PDO) return $pdo;
     $config = proxy_config();
-    $dir = proxy_data_dir();
+    proxy_data_dir();
     try {
-        $pdo = new PDO('sqlite:' . $config['db_path'], null, null, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]);
+        $pdo = new PDO('sqlite:' . $config['db_path'], null, null, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
         $pdo->exec('PRAGMA journal_mode=WAL');
         $pdo->exec('PRAGMA foreign_keys=ON');
         $pdo->exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,api_key_hash TEXT NOT NULL UNIQUE,api_key_cipher TEXT NOT NULL,daily_request_limit INTEGER NOT NULL DEFAULT 100,is_active INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,last_login_at TEXT NULL)");
@@ -59,11 +56,16 @@ function proxy_db(): PDO
 
 function proxy_app_key(): string
 {
-    $raw = (string)(proxy_config()['app_key'] ?? '');
-    if ($raw === '') throw new RuntimeException('OLLAMA_PROXY_APP_KEY is not configured.');
-    $decoded = base64_decode($raw, true);
-    if ($decoded === false || strlen($decoded) !== 32) throw new RuntimeException('OLLAMA_PROXY_APP_KEY must be a base64-encoded 32-byte key.');
-    return $decoded;
+    $config = proxy_config();
+    $raw = trim((string)($config['app_key'] ?? ''));
+    if ($raw !== '') {
+        $decoded = base64_decode($raw, true);
+        if ($decoded !== false && strlen($decoded) === 32) return $decoded;
+        proxy_log('CONFIG WARNING: OLLAMA_PROXY_APP_KEY is invalid; using admin-password-derived encryption key.');
+    }
+    $adminPassword = (string)($config['admin_password'] ?? '');
+    if ($adminPassword === '') throw new RuntimeException('Neither OLLAMA_PROXY_APP_KEY nor OLLAMA_PROXY_ADMIN_PASSWORD is configured.');
+    return hash('sha256', 'mediapitch-ollama-proxy:' . $adminPassword, true);
 }
 
 function proxy_encrypt(string $plain): string
@@ -74,8 +76,7 @@ function proxy_encrypt(string $plain): string
         return 'sodium:' . base64_encode($nonce . sodium_crypto_secretbox($plain, $nonce, $key));
     }
     if (function_exists('openssl_encrypt')) {
-        $iv = random_bytes(12);
-        $tag = '';
+        $iv = random_bytes(12); $tag = '';
         $cipher = openssl_encrypt($plain, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
         if ($cipher === false) throw new RuntimeException('OpenSSL encryption failed.');
         return 'openssl:' . base64_encode($iv . $tag . $cipher);
@@ -99,17 +100,12 @@ function proxy_decrypt(string $cipher): string
             if (!function_exists('openssl_decrypt')) return '';
             $blob = base64_decode(substr($cipher, 8), true);
             if ($blob === false || strlen($blob) < 29) return '';
-            $iv = substr($blob, 0, 12);
-            $tag = substr($blob, 12, 16);
-            $data = substr($blob, 28);
+            $iv = substr($blob, 0, 12); $tag = substr($blob, 12, 16); $data = substr($blob, 28);
             $plain = openssl_decrypt($data, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
             return $plain === false ? '' : $plain;
         }
         return '';
-    } catch (Throwable $e) {
-        proxy_log('DECRYPT ERROR: ' . $e->getMessage());
-        return '';
-    }
+    } catch (Throwable $e) { proxy_log('DECRYPT ERROR: ' . $e->getMessage()); return ''; }
 }
 
 function proxy_generate_api_key(): string { return 'mp_oll_' . bin2hex(random_bytes(24)); }
