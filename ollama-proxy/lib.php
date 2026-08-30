@@ -6,7 +6,7 @@ function proxy_config(): array
     static $config;
     if ($config !== null) return $config;
     $path = __DIR__ . '/config.php';
-    if (!is_file($path)) { http_response_code(503); exit('Ollama proxy is not configured. Copy config.example.php to config.php on the server.'); }
+    if (!is_file($path)) { http_response_code(503); exit('Ollama proxy is not configured.'); }
     $config = require $path;
     return $config;
 }
@@ -22,6 +22,13 @@ function proxy_db(): PDO
     $pdo->exec('PRAGMA journal_mode=WAL');
     $pdo->exec('PRAGMA foreign_keys=ON');
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,api_key_hash TEXT NOT NULL UNIQUE,api_key_cipher TEXT NOT NULL,daily_request_limit INTEGER NOT NULL DEFAULT 100,is_active INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,last_login_at TEXT NULL)");
+    $columns = $pdo->query('PRAGMA table_info(users)')->fetchAll();
+    $hasUsername = false;
+    foreach ($columns as $column) { if (($column['name'] ?? '') === 'username') { $hasUsername = true; break; } }
+    if (!$hasUsername) {
+        $pdo->exec('ALTER TABLE users ADD COLUMN username TEXT NULL');
+        $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)');
+    }
     $pdo->exec("CREATE TABLE IF NOT EXISTS usage_logs (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,endpoint TEXT NOT NULL,model TEXT NULL,http_status INTEGER NOT NULL,request_bytes INTEGER NOT NULL DEFAULT 0,response_bytes INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE)");
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_usage_user_created ON usage_logs(user_id, created_at)');
     return $pdo;
