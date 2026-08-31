@@ -130,5 +130,110 @@ function proxy_verify_csrf(): void { proxy_start_session(); $t=(string)($_POST['
 function proxy_current_user(): ?array { proxy_start_session(); $id=(int)($_SESSION['user_id']??0); if(!$id)return null; $s=proxy_db()->prepare('SELECT * FROM users WHERE id=? AND is_active=1');$s->execute([$id]);return $s->fetch()?:null; }
 function proxy_find_user_by_api_key(string $key): ?array { $s=proxy_db()->prepare('SELECT * FROM users WHERE api_key_hash=? AND is_active=1');$s->execute([proxy_api_key_hash($key)]);return $s->fetch()?:null; }
 function proxy_requests_today(int $userId): int { $s=proxy_db()->prepare("SELECT COUNT(*) FROM usage_logs WHERE user_id=? AND created_at>=datetime('now','start of day')");$s->execute([$userId]);return (int)$s->fetchColumn(); }
-function proxy_select_upstream_key(int $userId): string { $keys=proxy_config()['upstream_keys']??[]; if(!$keys){http_response_code(503);echo json_encode(['error'=>'No upstream Ollama Cloud API key configured']);exit;} return $keys[$userId%count($keys)]; }
+
+function proxy_upstream_keys(): array
+{
+    $keys = array_values(array_unique(array_filter(array_map('trim', proxy_config()['upstream_keys'] ?? []))));
+    return $keys;
+}
+
+function proxy_upstream_key_id(string $key): string
+{
+    return substr(hash('sha256', $key), 0, 12);
+}
+
+function proxy_upstream_health_path(): string
+{
+    return proxy_data_dir() . '/upstream-health.json';
+}
+
+function proxy_upstream_health(): array
+{
+    $path = proxy_upstream_health_path();
+    if (!is_file($path)) return [];
+    $raw = @file_get_contents($path);
+    $data = is_string($raw) ? json_decode($raw, true) : null;
+    return is_array($data) ? $data : [];
+}
+
+function proxy_save_upstream_health(array $health): void
+{
+    @file_put_contents(proxy_upstream_health_path(), json_encode($health, JSON_PRETTY_PRINT), LOCK_EX);
+}
+
+function proxy_mark_upstream_unhealthy(string $key, int $seconds, string $reason): void
+{
+    $health = proxy_upstream_health();
+    $id = proxy_upstream_key_id($key);
+    $health[$id] = [
+        'until' => time() + max(1, $seconds),
+        'reason' => substr($reason, 0, 180),
+        'updated_at' => gmdate('c'),
+    ];
+    proxy_save_upstream_health($health);
+    proxy_log('UPSTREAM ' . $id . ' cooling down for ' . $seconds . 's: ' . $reason);
+}
+
+function proxy_mark_upstream_healthy(string $key): void
+{
+    $health = proxy_upstream_health();
+    $id = proxy_upstream_key_id($key);
+    if (isset($health[$id])) {
+        unset($health[$id]);
+        proxy_save_upstream_health($health);
+    }
+}
+
+function proxy_ordered_upstream_keys(int $userId): array
+{
+    $keys = proxy_upstream_keys();
+    if (!$keys) return [];
+    $health = proxy_upstream_health();
+    $now = time();
+    $available = [];
+    $cooling = [];
+    foreach ($keys as $key) {
+        $id = proxy_upstream_key_id($key);
+        $until = (int)($health[$id]['until'] ?? 0);
+        if ($until > $now) $cooling[] = $key; else $available[] = $key;
+    }
+
+    // Rotate the first choice so normal traffic is spread across healthy keys.
+    if ($available) {
+        $start = abs(crc32($userId . ':' . gmdate('Y-m-d-H-i'))) % count($available);
+        $available = array_merge(array_slice($available, $start), array_slice($available, 0, $start));
+    }
+
+    // Cooling keys are last-resort fallbacks if every healthy key fails.
+    return array_merge($available, $cooling);
+}
+
+function proxy_should_retry_upstream(int $status, string $response, bool $transportFailed = false): bool
+{
+    if ($transportFailed) return true;
+    if (in_array($status, [401, 403, 408, 409, 425, 429], true)) return true;
+    if ($status >= 500) return true;
+    $text = strtolower($response);
+    foreach (['rate limit', 'rate_limit', 'quota', 'usage limit', 'limit exceeded', 'too many requests', 'capacity', 'temporarily unavailable'] as $needle) {
+        if (str_contains($text, $needle)) return true;
+    }
+    return false;
+}
+
+function proxy_upstream_cooldown_seconds(int $status, string $response, bool $transportFailed = false): int
+{
+    if ($transportFailed) return 60;
+    if ($status === 429 || str_contains(strtolower($response), 'limit') || str_contains(strtolower($response), 'quota')) return 900;
+    if (in_array($status, [401, 403], true)) return 3600;
+    if ($status >= 500 || in_array($status, [408, 409, 425], true)) return 120;
+    return 60;
+}
+
+function proxy_select_upstream_key(int $userId): string
+{
+    $keys = proxy_ordered_upstream_keys($userId);
+    if (!$keys) { http_response_code(503); echo json_encode(['error'=>'No upstream Ollama Cloud API key configured']); exit; }
+    return $keys[0];
+}
+
 function proxy_log_usage(int $userId,string $endpoint,?string $model,int $status,int $requestBytes,int $responseBytes): void { $s=proxy_db()->prepare('INSERT INTO usage_logs (user_id,endpoint,model,http_status,request_bytes,response_bytes) VALUES (?,?,?,?,?,?)');$s->execute([$userId,$endpoint,$model,$status,$requestBytes,$responseBytes]); }
