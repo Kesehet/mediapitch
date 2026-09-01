@@ -10,6 +10,61 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Accel-Buffering: no');
 
+/**
+ * Return only an explicit top-level upstream error. Never scan generated model
+ * content for words such as "limit" or "capacity" because legitimate answers
+ * may contain those words.
+ */
+function proxy_api_explicit_error(string $response): ?string
+{
+    $json = json_decode($response, true);
+    if (!is_array($json)) return null;
+
+    if (isset($json['error']) && is_string($json['error'])) {
+        return $json['error'];
+    }
+    if (isset($json['error']['message']) && is_string($json['error']['message'])) {
+        return $json['error']['message'];
+    }
+    return null;
+}
+
+function proxy_api_should_retry(int $status, string $response, bool $transportFailed = false): bool
+{
+    if ($transportFailed) return true;
+
+    // A normal 2xx response is successful. Only retry a 2xx response when the
+    // provider explicitly returned a top-level transient/quota error object.
+    if ($status >= 200 && $status < 300) {
+        $error = proxy_api_explicit_error($response);
+        if ($error === null) return false;
+        $text = strtolower($error);
+        foreach (['rate limit', 'rate_limit', 'quota', 'usage limit', 'limit exceeded', 'too many requests', 'capacity', 'temporarily unavailable'] as $needle) {
+            if (str_contains($text, $needle)) return true;
+        }
+        return false;
+    }
+
+    if (in_array($status, [401, 403, 408, 409, 425, 429], true)) return true;
+    if ($status >= 500) return true;
+    return false;
+}
+
+function proxy_api_cooldown_seconds(int $status, string $response, bool $transportFailed = false): int
+{
+    if ($transportFailed) return 60;
+    if ($status === 429) return 900;
+    if (in_array($status, [401, 403], true)) return 3600;
+    if ($status >= 500 || in_array($status, [408, 409, 425], true)) return 120;
+
+    $error = proxy_api_explicit_error($response);
+    if ($error !== null) {
+        $text = strtolower($error);
+        if (str_contains($text, 'limit') || str_contains($text, 'quota') || str_contains($text, 'too many requests')) return 900;
+    }
+    return 60;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     header('Allow: POST');
@@ -132,7 +187,7 @@ foreach ($upstreamKeys as $upstreamKey) {
     $finalStatus = $status;
     $finalResponse = (string)$response;
 
-    if (!proxy_should_retry_upstream($status, $finalResponse, $transportFailed)) {
+    if (!proxy_api_should_retry($status, $finalResponse, $transportFailed)) {
         proxy_mark_upstream_healthy($upstreamKey);
         proxy_remember_upstream_key($upstreamKey);
         if ($attempts > 1) {
@@ -141,7 +196,7 @@ foreach ($upstreamKeys as $upstreamKey) {
         break;
     }
 
-    $cooldown = proxy_upstream_cooldown_seconds($status, $finalResponse, $transportFailed);
+    $cooldown = proxy_api_cooldown_seconds($status, $finalResponse, $transportFailed);
     proxy_mark_upstream_unhealthy($upstreamKey, $cooldown, 'HTTP ' . $status . ' endpoint=' . $endpoint . ' model=' . ($model ?? 'n/a'));
     proxy_log('UPSTREAM FAILOVER attempt=' . $attempts . ' key=' . $keyId . ' status=' . $status . ' elapsed=' . $elapsed . 's endpoint=' . $endpoint);
 }
@@ -155,7 +210,7 @@ header('X-Ollama-Proxy-Attempts: ' . $attempts);
 header('X-Ollama-Proxy-Upstreams: ' . count($upstreamKeys));
 header('X-Ollama-Proxy-Stream-Requested: ' . ($clientRequestedStreaming ? '1' : '0'));
 
-if ($attempts >= count($upstreamKeys) && proxy_should_retry_upstream($finalStatus, $finalResponse, false)) {
+if ($attempts >= count($upstreamKeys) && proxy_api_should_retry($finalStatus, $finalResponse, false)) {
     proxy_log('ALL UPSTREAM KEYS FAILED status=' . $finalStatus . ' keys=' . implode(',', $attemptedKeyIds) . ' endpoint=' . $endpoint . ' model=' . ($model ?? 'n/a'));
 }
 
