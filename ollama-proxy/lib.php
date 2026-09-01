@@ -61,6 +61,30 @@ function proxy_username_display(string $stored): string
     return str_ends_with(strtolower($stored), $suffix) ? substr($stored, 0, -strlen($suffix)) : $stored;
 }
 
+function proxy_ist_timezone(): DateTimeZone
+{
+    static $tz;
+    if (!$tz instanceof DateTimeZone) $tz = new DateTimeZone('Asia/Kolkata');
+    return $tz;
+}
+
+function proxy_format_ist(?string $utcTimestamp, string $format = 'd M Y, h:i:s A'): string
+{
+    if (!$utcTimestamp) return '—';
+    try {
+        return (new DateTimeImmutable($utcTimestamp, new DateTimeZone('UTC')))->setTimezone(proxy_ist_timezone())->format($format);
+    } catch (Throwable $e) {
+        return $utcTimestamp;
+    }
+}
+
+function proxy_logs_to_ist(string $contents): string
+{
+    return preg_replace_callback('/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) UTC\]/', static function (array $m): string {
+        return '[' . proxy_format_ist($m[1], 'Y-m-d H:i:s') . ' IST]';
+    }, $contents) ?? $contents;
+}
+
 function proxy_app_key(): string
 {
     $config = proxy_config();
@@ -122,7 +146,12 @@ function proxy_csrf_token(): string { proxy_start_session(); if (empty($_SESSION
 function proxy_verify_csrf(): void { proxy_start_session(); $t=(string)($_POST['csrf']??''); if(!$t||!hash_equals((string)($_SESSION['csrf']??''),$t)){http_response_code(419);exit('Invalid request token.');} }
 function proxy_current_user(): ?array { proxy_start_session(); $id=(int)($_SESSION['user_id']??0); if(!$id)return null; $s=proxy_db()->prepare('SELECT * FROM users WHERE id=? AND is_active=1');$s->execute([$id]);return $s->fetch()?:null; }
 function proxy_find_user_by_api_key(string $key): ?array { $s=proxy_db()->prepare('SELECT * FROM users WHERE api_key_hash=? AND is_active=1');$s->execute([proxy_api_key_hash($key)]);return $s->fetch()?:null; }
-function proxy_requests_today(int $userId): int { $s=proxy_db()->prepare("SELECT COUNT(*) FROM usage_logs WHERE user_id=? AND created_at>=datetime('now','start of day')");$s->execute([$userId]);return (int)$s->fetchColumn(); }
+function proxy_requests_today(int $userId): int
+{
+    $s=proxy_db()->prepare("SELECT COUNT(*) FROM usage_logs WHERE user_id=? AND created_at>=datetime('now','+5 hours','+30 minutes','start of day','-5 hours','-30 minutes')");
+    $s->execute([$userId]);
+    return (int)$s->fetchColumn();
+}
 
 function proxy_upstream_keys(): array
 {
@@ -186,29 +215,40 @@ function proxy_ordered_upstream_keys(int $userId): array
     $keys = proxy_upstream_keys();
     $count = count($keys);
     if ($count === 0) return [];
-
-    // Sticky failover: start every request with the last key that actually worked,
-    // then walk forward through the list and wrap exactly once.
     $start = proxy_last_good_upstream_index();
     $ordered = [];
-    for ($offset = 0; $offset < $count; $offset++) {
-        $ordered[] = $keys[($start + $offset) % $count];
-    }
+    for ($offset = 0; $offset < $count; $offset++) $ordered[] = $keys[($start + $offset) % $count];
     return $ordered;
+}
+
+function proxy_upstream_error_message(string $response): string
+{
+    $decoded = json_decode($response, true);
+    if (!is_array($decoded) || !array_key_exists('error', $decoded)) return '';
+    $error = $decoded['error'];
+    if (is_string($error)) return strtolower($error);
+    if (is_array($error)) return strtolower((string)($error['message'] ?? json_encode($error)));
+    return strtolower((string)$error);
 }
 
 function proxy_should_retry_upstream(int $status, string $response, bool $transportFailed = false): bool
 {
     if ($transportFailed) return true;
     if (in_array($status, [401,403,408,409,425,429], true) || $status >= 500) return true;
-    $text = strtolower($response);
-    foreach (['rate limit','rate_limit','quota','usage limit','limit exceeded','too many requests','capacity','temporarily unavailable'] as $needle) if (str_contains($text,$needle)) return true;
+    if ($status >= 200 && $status < 300) {
+        $error = proxy_upstream_error_message($response);
+        if ($error === '') return false;
+        foreach (['rate limit','rate_limit','quota','usage limit','limit exceeded','too many requests','capacity','temporarily unavailable'] as $needle) {
+            if (str_contains($error, $needle)) return true;
+        }
+    }
     return false;
 }
 function proxy_upstream_cooldown_seconds(int $status, string $response, bool $transportFailed = false): int
 {
     if ($transportFailed) return 60;
-    if ($status === 429 || str_contains(strtolower($response),'limit') || str_contains(strtolower($response),'quota')) return 900;
+    $error = proxy_upstream_error_message($response);
+    if ($status === 429 || str_contains($error,'limit') || str_contains($error,'quota')) return 900;
     if (in_array($status,[401,403],true)) return 3600;
     if ($status >= 500 || in_array($status,[408,409,425],true)) return 120;
     return 60;
