@@ -54,18 +54,11 @@ function proxy_db(): PDO
     }
 }
 
-function proxy_username_storage(string $username): string
-{
-    return strtolower(trim($username)) . '@proxy.local';
-}
-
+function proxy_username_storage(string $username): string { return strtolower(trim($username)) . '@proxy.local'; }
 function proxy_username_display(string $stored): string
 {
     $suffix = '@proxy.local';
-    if (str_ends_with(strtolower($stored), $suffix)) {
-        return substr($stored, 0, -strlen($suffix));
-    }
-    return $stored;
+    return str_ends_with(strtolower($stored), $suffix) ? substr($stored, 0, -strlen($suffix)) : $stored;
 }
 
 function proxy_app_key(): string
@@ -133,19 +126,11 @@ function proxy_requests_today(int $userId): int { $s=proxy_db()->prepare("SELECT
 
 function proxy_upstream_keys(): array
 {
-    $keys = array_values(array_unique(array_filter(array_map('trim', proxy_config()['upstream_keys'] ?? []))));
-    return $keys;
+    return array_values(array_unique(array_filter(array_map('trim', proxy_config()['upstream_keys'] ?? []))));
 }
-
-function proxy_upstream_key_id(string $key): string
-{
-    return substr(hash('sha256', $key), 0, 12);
-}
-
-function proxy_upstream_health_path(): string
-{
-    return proxy_data_dir() . '/upstream-health.json';
-}
+function proxy_upstream_key_id(string $key): string { return substr(hash('sha256', $key), 0, 12); }
+function proxy_upstream_health_path(): string { return proxy_data_dir() . '/upstream-health.json'; }
+function proxy_upstream_pointer_path(): string { return proxy_data_dir() . '/upstream-pointer.json'; }
 
 function proxy_upstream_health(): array
 {
@@ -155,85 +140,83 @@ function proxy_upstream_health(): array
     $data = is_string($raw) ? json_decode($raw, true) : null;
     return is_array($data) ? $data : [];
 }
-
-function proxy_save_upstream_health(array $health): void
-{
-    @file_put_contents(proxy_upstream_health_path(), json_encode($health, JSON_PRETTY_PRINT), LOCK_EX);
-}
+function proxy_save_upstream_health(array $health): void { @file_put_contents(proxy_upstream_health_path(), json_encode($health, JSON_PRETTY_PRINT), LOCK_EX); }
 
 function proxy_mark_upstream_unhealthy(string $key, int $seconds, string $reason): void
 {
     $health = proxy_upstream_health();
     $id = proxy_upstream_key_id($key);
-    $health[$id] = [
-        'until' => time() + max(1, $seconds),
-        'reason' => substr($reason, 0, 180),
-        'updated_at' => gmdate('c'),
-    ];
+    $health[$id] = ['until'=>time()+max(1,$seconds),'reason'=>substr($reason,0,180),'updated_at'=>gmdate('c')];
     proxy_save_upstream_health($health);
     proxy_log('UPSTREAM ' . $id . ' cooling down for ' . $seconds . 's: ' . $reason);
 }
-
 function proxy_mark_upstream_healthy(string $key): void
 {
     $health = proxy_upstream_health();
     $id = proxy_upstream_key_id($key);
-    if (isset($health[$id])) {
-        unset($health[$id]);
-        proxy_save_upstream_health($health);
-    }
+    if (isset($health[$id])) { unset($health[$id]); proxy_save_upstream_health($health); }
+}
+
+function proxy_last_good_upstream_index(): int
+{
+    $keys = proxy_upstream_keys();
+    if (!$keys) return 0;
+    $path = proxy_upstream_pointer_path();
+    if (!is_file($path)) return 0;
+    $raw = @file_get_contents($path);
+    $data = is_string($raw) ? json_decode($raw, true) : null;
+    $index = is_array($data) ? (int)($data['index'] ?? 0) : 0;
+    return (($index % count($keys)) + count($keys)) % count($keys);
+}
+
+function proxy_remember_upstream_key(string $key): void
+{
+    $keys = proxy_upstream_keys();
+    $index = array_search($key, $keys, true);
+    if ($index === false) return;
+    @file_put_contents(proxy_upstream_pointer_path(), json_encode([
+        'index'=>(int)$index,
+        'key_id'=>proxy_upstream_key_id($key),
+        'updated_at'=>gmdate('c'),
+    ], JSON_PRETTY_PRINT), LOCK_EX);
 }
 
 function proxy_ordered_upstream_keys(int $userId): array
 {
     $keys = proxy_upstream_keys();
-    if (!$keys) return [];
-    $health = proxy_upstream_health();
-    $now = time();
-    $available = [];
-    $cooling = [];
-    foreach ($keys as $key) {
-        $id = proxy_upstream_key_id($key);
-        $until = (int)($health[$id]['until'] ?? 0);
-        if ($until > $now) $cooling[] = $key; else $available[] = $key;
-    }
+    $count = count($keys);
+    if ($count === 0) return [];
 
-    // Rotate the first choice so normal traffic is spread across healthy keys.
-    if ($available) {
-        $start = abs(crc32($userId . ':' . gmdate('Y-m-d-H-i'))) % count($available);
-        $available = array_merge(array_slice($available, $start), array_slice($available, 0, $start));
+    // Sticky failover: start every request with the last key that actually worked,
+    // then walk forward through the list and wrap exactly once.
+    $start = proxy_last_good_upstream_index();
+    $ordered = [];
+    for ($offset = 0; $offset < $count; $offset++) {
+        $ordered[] = $keys[($start + $offset) % $count];
     }
-
-    // Cooling keys are last-resort fallbacks if every healthy key fails.
-    return array_merge($available, $cooling);
+    return $ordered;
 }
 
 function proxy_should_retry_upstream(int $status, string $response, bool $transportFailed = false): bool
 {
     if ($transportFailed) return true;
-    if (in_array($status, [401, 403, 408, 409, 425, 429], true)) return true;
-    if ($status >= 500) return true;
+    if (in_array($status, [401,403,408,409,425,429], true) || $status >= 500) return true;
     $text = strtolower($response);
-    foreach (['rate limit', 'rate_limit', 'quota', 'usage limit', 'limit exceeded', 'too many requests', 'capacity', 'temporarily unavailable'] as $needle) {
-        if (str_contains($text, $needle)) return true;
-    }
+    foreach (['rate limit','rate_limit','quota','usage limit','limit exceeded','too many requests','capacity','temporarily unavailable'] as $needle) if (str_contains($text,$needle)) return true;
     return false;
 }
-
 function proxy_upstream_cooldown_seconds(int $status, string $response, bool $transportFailed = false): int
 {
     if ($transportFailed) return 60;
-    if ($status === 429 || str_contains(strtolower($response), 'limit') || str_contains(strtolower($response), 'quota')) return 900;
-    if (in_array($status, [401, 403], true)) return 3600;
-    if ($status >= 500 || in_array($status, [408, 409, 425], true)) return 120;
+    if ($status === 429 || str_contains(strtolower($response),'limit') || str_contains(strtolower($response),'quota')) return 900;
+    if (in_array($status,[401,403],true)) return 3600;
+    if ($status >= 500 || in_array($status,[408,409,425],true)) return 120;
     return 60;
 }
-
 function proxy_select_upstream_key(int $userId): string
 {
     $keys = proxy_ordered_upstream_keys($userId);
     if (!$keys) { http_response_code(503); echo json_encode(['error'=>'No upstream Ollama Cloud API key configured']); exit; }
     return $keys[0];
 }
-
 function proxy_log_usage(int $userId,string $endpoint,?string $model,int $status,int $requestBytes,int $responseBytes): void { $s=proxy_db()->prepare('INSERT INTO usage_logs (user_id,endpoint,model,http_status,request_bytes,response_bytes) VALUES (?,?,?,?,?,?)');$s->execute([$userId,$endpoint,$model,$status,$requestBytes,$responseBytes]); }
