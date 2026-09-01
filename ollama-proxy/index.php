@@ -60,10 +60,11 @@ if ($user) {
     $stmt = proxy_db()->prepare("SELECT created_at FROM usage_logs WHERE user_id = ? AND created_at >= datetime('now','-24 hours') ORDER BY created_at ASC");
     $stmt->execute([$uid]);
     $rows24 = $stmt->fetchAll();
-    $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
-    $startHour = $now->modify('-23 hours')->setTime((int)$now->modify('-23 hours')->format('H'), 0, 0);
+    $nowUtc = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+    $startHour = $nowUtc->modify('-23 hours')->setTime((int)$nowUtc->modify('-23 hours')->format('H'), 0, 0);
     for ($i = 0; $i < 24; $i++) {
-        $hourLabels[$i] = $startHour->modify('+' . $i . ' hours')->format('H:00');
+        $bucketUtc = $startHour->modify('+' . $i . ' hours');
+        $hourLabels[$i] = $bucketUtc->setTimezone(proxy_ist_timezone())->format('H:00');
     }
     foreach ($rows24 as $r) {
         $dt = new DateTimeImmutable((string)$r['created_at'], new DateTimeZone('UTC'));
@@ -85,12 +86,12 @@ function h(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 
 <div class="auth card"><div class="brand">MediaPitch Ollama Proxy</div><h1>Log in</h1><p class="muted">Use the username issued by the admin. Your API key is also your password.</p><?php if ($error): ?><div class="error"><?= h($error) ?></div><?php endif; ?><form method="post"><input type="hidden" name="csrf" value="<?= h(proxy_csrf_token()) ?>"><input type="hidden" name="form" value="login"><label>Username</label><input type="text" name="username" autocomplete="username" required><label>API key / password</label><input type="password" name="password" autocomplete="current-password" required><button type="submit">Log in</button></form></div>
 <?php else: ?>
 <div class="top"><div><div class="brand">MediaPitch Ollama Proxy</div><div class="muted"><?= h(proxy_username_display((string)$user['email'])) ?></div></div><a class="link" href="<?= h($base) ?>/logout">Log out</a></div>
-<div class="grid"><div class="card"><div class="muted">Requests today (UTC)</div><div class="stat"><?= $usedToday ?><?= (int)$user['daily_request_limit'] > 0 ? ' / ' . (int)$user['daily_request_limit'] : '' ?></div></div><div class="card"><div class="muted">Calls in past 24 hours</div><div class="stat"><?= $used24h ?></div></div><div class="card"><div class="muted">Account status</div><div class="stat">Active</div></div></div>
-<div class="card"><h2>Usage — past 24 hours</h2><p class="muted">Hourly API calls, shown in UTC. Hover a bar for the exact count.</p><?php $maxUsage=max(1,max($hourlyUsage)); ?><div class="chart-wrap"><?php foreach($hourlyUsage as $i=>$count): $height=max(2,(int)round(($count/$maxUsage)*190)); ?><div class="bar-col"><div class="bar" data-count="<?=$count?>" style="height:<?=$height?>px"></div><div class="xlab"><?=h($hourLabels[$i]??'')?></div></div><?php endforeach;?></div></div>
+<div class="grid"><div class="card"><div class="muted">Requests today (IST)</div><div class="stat"><?= $usedToday ?><?= (int)$user['daily_request_limit'] > 0 ? ' / ' . (int)$user['daily_request_limit'] : '' ?></div></div><div class="card"><div class="muted">Calls in past 24 hours</div><div class="stat"><?= $used24h ?></div></div><div class="card"><div class="muted">Account status</div><div class="stat">Active</div></div></div>
+<div class="card"><h2>Usage — past 24 hours</h2><p class="muted">Hourly API calls, shown in Kolkata time (IST). Hover a bar for the exact count.</p><?php $maxUsage=max(1,max($hourlyUsage)); ?><div class="chart-wrap"><?php foreach($hourlyUsage as $i=>$count): $height=max(2,(int)round(($count/$maxUsage)*190)); ?><div class="bar-col"><div class="bar" data-count="<?=$count?>" style="height:<?=$height?>px"></div><div class="xlab"><?=h($hourLabels[$i]??'')?></div></div><?php endforeach;?></div></div>
 <div class="card"><h2>Your API key</h2><p class="muted">This is also your login password. Use it as the Bearer token for proxy requests.</p><div class="key"><?= h($apiKey) ?></div></div>
 <div class="card"><h2>Quick test</h2><div class="code">curl <?= h('https://mediapitch.in' . $base . '/api/chat') ?> \
   -H "Authorization: Bearer <?= h($apiKey) ?>" \
   -H "Content-Type: application/json" \
   -d '{"model":"glm-5.3:cloud","messages":[{"role":"user","content":"Hello"}],"stream":false}'</div></div>
-<div class="card"><h2>Recent usage</h2><?php if (!$recentUsage): ?><p class="muted">No API requests yet.</p><?php else: ?><table><thead><tr><th>Time (UTC)</th><th>Endpoint</th><th>Model</th><th>Status</th></tr></thead><tbody><?php foreach ($recentUsage as $row): ?><tr><td><?= h((string)$row['created_at']) ?></td><td>/api/<?= h((string)$row['endpoint']) ?></td><td><?= h((string)($row['model'] ?: '—')) ?></td><td><?= (int)$row['http_status'] ?></td></tr><?php endforeach; ?></tbody></table><?php endif; ?></div>
+<div class="card"><h2>Recent usage</h2><?php if (!$recentUsage): ?><p class="muted">No API requests yet.</p><?php else: ?><table><thead><tr><th>Time (IST)</th><th>Endpoint</th><th>Model</th><th>Status</th></tr></thead><tbody><?php foreach ($recentUsage as $row): ?><tr><td><?= h(proxy_format_ist((string)$row['created_at'])) ?></td><td>/api/<?= h((string)$row['endpoint']) ?></td><td><?= h((string)($row['model'] ?: '—')) ?></td><td><?= (int)$row['http_status'] ?></td></tr><?php endforeach; ?></tbody></table><?php endif; ?></div>
 <?php endif; ?></div></body></html>
