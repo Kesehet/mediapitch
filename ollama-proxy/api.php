@@ -2,7 +2,6 @@
 declare(strict_types=1);
 require __DIR__ . '/lib.php';
 
-// AI generations can legitimately take longer than PHP's normal execution window.
 @set_time_limit(0);
 @ini_set('max_execution_time', '0');
 ignore_user_abort(true);
@@ -63,8 +62,6 @@ if (!is_array($decoded)) {
     exit;
 }
 
-// Ollama may stream by default depending on the client. For ordinary proxy calls,
-// make non-streaming explicit unless the caller deliberately requested streaming.
 $clientRequestedStreaming = array_key_exists('stream', $decoded) && $decoded['stream'] === true;
 if (!array_key_exists('stream', $decoded) && in_array($endpoint, ['chat', 'generate'], true)) {
     $decoded['stream'] = false;
@@ -137,8 +134,9 @@ foreach ($upstreamKeys as $upstreamKey) {
 
     if (!proxy_should_retry_upstream($status, $finalResponse, $transportFailed)) {
         proxy_mark_upstream_healthy($upstreamKey);
+        proxy_remember_upstream_key($upstreamKey);
         if ($attempts > 1) {
-            proxy_log('UPSTREAM FAILOVER SUCCESS after ' . $attempts . ' attempts; key=' . $keyId . '; endpoint=' . $endpoint . '; model=' . ($model ?? 'n/a'));
+            proxy_log('UPSTREAM FAILOVER SUCCESS after ' . $attempts . ' attempts; sticky_key=' . $keyId . '; endpoint=' . $endpoint . '; model=' . ($model ?? 'n/a'));
         }
         break;
     }
