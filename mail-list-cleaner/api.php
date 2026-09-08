@@ -18,6 +18,25 @@ function apiRespond(array $payload, int $status = 200): never
     exit;
 }
 
+function mailCleanerSetting(string $key): string
+{
+    $runtime = getenv($key);
+    if ($runtime !== false && trim((string)$runtime) !== '') {
+        return trim((string)$runtime);
+    }
+
+    // Shared-hosting friendly fallback. The repository .htaccess blocks direct web access
+    // to /.env and .gitignore keeps it out of source control.
+    static $localEnv = null;
+    if ($localEnv === null) {
+        $path = dirname(__DIR__) . '/.env';
+        $parsed = is_file($path) ? @parse_ini_file($path, false, INI_SCANNER_RAW) : false;
+        $localEnv = is_array($parsed) ? $parsed : [];
+    }
+
+    return trim((string)($localEnv[$key] ?? ''));
+}
+
 function providedApiKey(): string
 {
     $key = trim((string)($_SERVER['HTTP_X_API_KEY'] ?? ''));
@@ -85,7 +104,7 @@ function enforceRateLimit(bool $authenticated): void
 }
 
 $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
-$configuredKey = trim((string)getenv('MAIL_LIST_CLEANER_API_KEY'));
+$configuredKey = mailCleanerSetting('MAIL_LIST_CLEANER_API_KEY');
 
 if ($method === 'GET') {
     apiRespond([
