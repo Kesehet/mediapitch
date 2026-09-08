@@ -107,13 +107,34 @@ final class EmailListCleaner
 
         $mxHosts = [];
         $mxWeights = [];
-        $hasMx = function_exists('getmxrr') && @getmxrr($domain, $mxHosts, $mxWeights);
+        $mxLookupFoundRecords = function_exists('getmxrr') && @getmxrr($domain, $mxHosts, $mxWeights);
+        $hasUsableMx = false;
+        $hasNullMx = false;
 
-        // RFC 5321 permits fallback to A/AAAA when MX is absent, so treat either as mail-capable.
+        if ($mxLookupFoundRecords) {
+            foreach ($mxHosts as $mxHost) {
+                // RFC 7505 Null MX is represented as a single dot (".") and explicitly means
+                // that the domain does not accept email. It must not fall back to A/AAAA.
+                $normalizedMxHost = rtrim(trim((string)$mxHost), '.');
+                if ($normalizedMxHost === '') {
+                    $hasNullMx = true;
+                    continue;
+                }
+
+                $hasUsableMx = true;
+            }
+        }
+
+        if ($hasNullMx) {
+            $row['reason'] = 'Domain explicitly does not accept email (Null MX)';
+            return $row;
+        }
+
+        // RFC 5321 permits fallback to A/AAAA only when the domain has no MX records.
         $hasAddressRecord = @checkdnsrr($domain, 'A') || @checkdnsrr($domain, 'AAAA');
-        $row['mx'] = $hasMx;
+        $row['mx'] = $hasUsableMx;
 
-        if (!$hasMx && !$hasAddressRecord) {
+        if (!$hasUsableMx && !$hasAddressRecord) {
             $row['reason'] = 'Domain has no MX, A, or AAAA record';
             return $row;
         }
@@ -128,7 +149,7 @@ final class EmailListCleaner
         }
 
         $row['status'] = 'clean';
-        $row['reason'] = $hasMx ? 'Syntax and MX checks passed' : 'Syntax passed; domain uses A/AAAA fallback';
+        $row['reason'] = $hasUsableMx ? 'Syntax and MX checks passed' : 'Syntax passed; domain uses A/AAAA fallback';
 
         return $row;
     }
