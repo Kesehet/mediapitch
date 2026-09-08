@@ -43,6 +43,8 @@ final class EmailListCleaner
     /** @var array<string,array<string,mixed>> */
     private array $dnsCache = [];
 
+    private ?bool $dnsResolverHealthy = null;
+
     /**
      * Clean and validate a raw email list.
      *
@@ -209,6 +211,11 @@ final class EmailListCleaner
 
         $row['syntax'] = true;
 
+        $typoSuggestion = self::COMMON_DOMAIN_TYPOS[$domain] ?? null;
+        if ($typoSuggestion !== null) {
+            $row['suggestion'] = $typoSuggestion;
+        }
+
         $dns = $this->resolveDomain($domain);
         $row['mx'] = (bool)$dns['mx'];
         $row['mail_routing'] = (string)$dns['routing'];
@@ -216,11 +223,18 @@ final class EmailListCleaner
         if ($dns['status'] === 'unknown') {
             $row['status'] = 'unknown';
             $row['reason'] = (string)$dns['reason'];
+            if ($typoSuggestion !== null) {
+                $row['reason'] .= '; possible domain typo — did you mean ' . $typoSuggestion . '?';
+            }
             return $row;
         }
 
         if ($dns['status'] === 'invalid') {
             $row['reason'] = (string)$dns['reason'];
+            if ($typoSuggestion !== null) {
+                $row['reason'] .= '; possible domain typo — did you mean ' . $typoSuggestion . '?';
+                $row['flags'] = ['Possible domain typo'];
+            }
             return $row;
         }
 
@@ -237,9 +251,8 @@ final class EmailListCleaner
             $flags[] = 'Disposable or temporary email domain';
         }
 
-        if (isset(self::COMMON_DOMAIN_TYPOS[$domain])) {
-            $row['suggestion'] = self::COMMON_DOMAIN_TYPOS[$domain];
-            $flags[] = 'Possible domain typo — did you mean ' . self::COMMON_DOMAIN_TYPOS[$domain] . '?';
+        if ($typoSuggestion !== null) {
+            $flags[] = 'Possible domain typo — did you mean ' . $typoSuggestion . '?';
         }
 
         $row['flags'] = $flags;
@@ -383,11 +396,41 @@ final class EmailListCleaner
             ];
         }
 
+        // Distinguish a genuinely nonexistent domain from a temporary/system DNS outage.
+        // The sentinel lookup is cached for the lifetime of this cleaner instance.
+        if (!$this->dnsResolverIsHealthy()) {
+            return $this->dnsCache[$domain] = [
+                'status' => 'unknown',
+                'reason' => 'DNS resolver is temporarily unavailable',
+                'mx' => false,
+                'routing' => 'Unknown',
+            ];
+        }
+
         return $this->dnsCache[$domain] = [
             'status' => 'invalid',
             'reason' => 'Domain does not resolve to a usable mail route',
             'mx' => false,
             'routing' => 'None',
         ];
+    }
+
+    private function dnsResolverIsHealthy(): bool
+    {
+        if ($this->dnsResolverHealthy !== null) {
+            return $this->dnsResolverHealthy;
+        }
+
+        if (!function_exists('checkdnsrr')) {
+            return $this->dnsResolverHealthy = false;
+        }
+
+        // example.com is a stable, reserved domain with DNS records. Its Null MX is irrelevant
+        // here because this health check only asks whether normal DNS resolution is working.
+        return $this->dnsResolverHealthy = (
+            @checkdnsrr('example.com', 'A')
+            || @checkdnsrr('example.com', 'AAAA')
+            || @checkdnsrr('example.com', 'NS')
+        );
     }
 }
