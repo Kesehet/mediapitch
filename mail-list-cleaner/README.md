@@ -45,11 +45,13 @@ Endpoint:
 
 `POST https://mediapitch.in/mail-list-cleaner/api.php`
 
-Accepted JSON bodies:
+A single-address request is available at the conservative public rate limit:
 
 ```json
 {"email":"person@example.com"}
 ```
+
+Authenticated server-to-server clients can also submit bulk bodies:
 
 ```json
 {"emails":["one@example.com","two@example.com"]}
@@ -91,11 +93,11 @@ Example response:
 }
 ```
 
-The API accepts at most 1,000 addresses and a 1 MB request body. It has lightweight per-IP rate limiting.
+The API accepts a 1 MB request body. Authenticated bulk requests accept at most 1,000 addresses. Unauthenticated callers can validate one address per request and are rate-limited more aggressively.
 
 ### API authentication
 
-Set this environment variable on the MediaPitch host to require authentication:
+Set this environment variable on the MediaPitch host to enable authenticated server-to-server and bulk use:
 
 ```text
 MAIL_LIST_CLEANER_API_KEY=<long-random-secret>
@@ -113,17 +115,17 @@ or:
 X-API-Key: <key>
 ```
 
-If `MAIL_LIST_CLEANER_API_KEY` is not configured, the API remains available with the lower unauthenticated rate limit.
+If `MAIL_LIST_CLEANER_API_KEY` is not configured, single-address validation remains available at the lower public rate limit, while the bulk `emails` request is disabled.
 
 Do not commit the real key to Git.
 
 ## Newsletter integration
 
-The Fill Masjid and MediaPitch Store newsletter systems can call the API server-to-server with:
+The Fill Masjid and MediaPitch Store newsletter systems call the API with a single address, so they work during rollout even before API-key authentication is enabled. For locked-down production use, configure:
 
 ```text
 EMAIL_VALIDATOR_API_URL=https://mediapitch.in/mail-list-cleaner/api.php
-EMAIL_VALIDATOR_API_KEY=<same key if API authentication is enabled>
+EMAIL_VALIDATOR_API_KEY=<same key configured on the MediaPitch validator host>
 ```
 
 The newsletter integrations intentionally **fail open** if the validation service is unavailable after local syntax validation, so an API/DNS outage does not lose legitimate signups. Definitively `invalid` addresses are rejected. Likely provider typos return a correction prompt. Other `risky` addresses (for example role/disposable addresses) are currently allowed and can be reviewed or filtered later.
@@ -134,7 +136,7 @@ The newsletter integrations intentionally **fail open** if the validation servic
 - `info@gmail.com` → risky, role-based
 - `hello@definitely-does-not-exist-93841.invalid` → invalid
 - `Jane Doe <some-valid-address@gmail.com>` → address extracted and checked
-- `person@gmial.com` → risky with a Gmail typo suggestion when the typo domain itself is mail-capable
+- `person@gmail.con` → invalid with a `gmail.com` typo suggestion
 
 ## Server requirements
 
