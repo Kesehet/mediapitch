@@ -42,7 +42,9 @@ function providedApiKey(): string
 
 function enforceRateLimit(bool $authenticated): void
 {
-    $limit = $authenticated ? 600 : 60;
+    // Public access is intentionally conservative because every validation can cause DNS work.
+    // Authenticated integrations get a larger allowance for controlled batch/CRM use.
+    $limit = $authenticated ? 120 : 30;
     $ip = (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
     $bucket = gmdate('YmdHi');
     $path = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
@@ -97,9 +99,10 @@ if ($method === 'GET') {
             ['emails' => "one@example.com\ntwo@example.com"],
         ],
         'max_emails_per_request' => MAIL_CLEANER_API_MAX_EMAILS,
-        'authentication_required' => $configuredKey !== '',
+        'authentication_required_for_bulk' => true,
+        'api_key_configured' => $configuredKey !== '',
         'authentication' => 'Authorization: Bearer <key> or X-API-Key: <key>',
-        'note' => 'A clean result confirms syntax and mail-capable DNS routing, not mailbox existence.',
+        'note' => 'Unauthenticated callers may validate one address per request. A clean result confirms syntax and mail-capable DNS routing, not mailbox existence.',
     ]);
 }
 
@@ -116,8 +119,9 @@ if ($contentLength > MAIL_CLEANER_API_MAX_BODY) {
 $providedKey = providedApiKey();
 $authenticated = $configuredKey !== '' && $providedKey !== '' && hash_equals($configuredKey, $providedKey);
 
-if ($configuredKey !== '' && !$authenticated) {
-    apiRespond(['ok' => false, 'error' => 'unauthorized', 'message' => 'A valid API key is required.'], 401);
+// If a server-side key has been configured, an incorrect supplied key is always rejected.
+if ($configuredKey !== '' && $providedKey !== '' && !$authenticated) {
+    apiRespond(['ok' => false, 'error' => 'unauthorized', 'message' => 'The supplied API key is not valid.'], 401);
 }
 
 enforceRateLimit($authenticated);
@@ -154,6 +158,18 @@ if (array_key_exists('email', $payload)) {
     }
     $result = $cleaner->cleanItems([$email]);
 } elseif (array_key_exists('emails', $payload)) {
+    // Bulk validation is restricted to authenticated server-to-server clients. This prevents
+    // the public endpoint from being used as a high-volume DNS amplification/work service.
+    if (!$authenticated) {
+        apiRespond([
+            'ok' => false,
+            'error' => 'authentication_required',
+            'message' => $configuredKey === ''
+                ? 'Bulk API validation is disabled until MAIL_LIST_CLEANER_API_KEY is configured on the server.'
+                : 'A valid API key is required for bulk validation.',
+        ], 401);
+    }
+
     $emails = $payload['emails'];
 
     if (is_array($emails)) {
