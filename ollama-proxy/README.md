@@ -11,6 +11,7 @@ Small PHP proxy for controlled access to Ollama Cloud.
 - Generate API: `https://mediapitch.in/ollama-proxy/api/generate`
 - Embed API: `https://mediapitch.in/ollama-proxy/api/embed`
 - Embeddings API: `https://mediapitch.in/ollama-proxy/api/embeddings`
+- Model list API: `https://mediapitch.in/ollama-proxy/api/tags` (GET)
 
 ## Required hosting environment variables
 
@@ -53,9 +54,16 @@ curl https://mediapitch.in/ollama-proxy/api/chat \
   -d '{"model":"glm-5.3:cloud","messages":[{"role":"user","content":"Hello"}],"stream":false}'
 ```
 
+List models with the same proxy API key:
+
+```bash
+curl https://mediapitch.in/ollama-proxy/api/tags \
+  -H "Authorization: Bearer mp_oll_YOUR_KEY"
+```
+
 ## Storage and limits
 
-SQLite is stored at `ollama-proxy/data/proxy.sqlite`. The directory is denied by `.htaccess` and ignored by Git. Each request logs user, endpoint, model, HTTP status, request size, response size, and timestamp. The current quota is request-count based per UTC day.
+SQLite is stored at `ollama-proxy/data/proxy.sqlite`. The directory is denied by `.htaccess` and ignored by Git. Each request logs user, endpoint, model, HTTP status, request size, response size, and timestamp. Daily quota counting applies to generation/embedding endpoints; authenticated `GET /api/tags` model-discovery checks are logged but do not consume the user's daily request quota.
 
 ## Security notes
 
