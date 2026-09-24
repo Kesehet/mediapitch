@@ -65,18 +65,27 @@ function proxy_api_cooldown_seconds(int $status, string $response, bool $transpo
     return 60;
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    header('Allow: POST');
-    echo json_encode(['error' => 'POST required']);
+$endpoint = strtolower((string)($_GET['endpoint'] ?? ''));
+$endpointMethods = [
+    'chat' => 'POST',
+    'generate' => 'POST',
+    'embed' => 'POST',
+    'embeddings' => 'POST',
+    'tags' => 'GET',
+];
+
+if (!isset($endpointMethods[$endpoint])) {
+    http_response_code(404);
+    echo json_encode(['error' => 'Unsupported endpoint']);
     exit;
 }
 
-$endpoint = strtolower((string)($_GET['endpoint'] ?? ''));
-$allowed = ['chat', 'generate', 'embed', 'embeddings'];
-if (!in_array($endpoint, $allowed, true)) {
-    http_response_code(404);
-    echo json_encode(['error' => 'Unsupported endpoint']);
+$requestMethod = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+$expectedMethod = $endpointMethods[$endpoint];
+if ($requestMethod !== $expectedMethod) {
+    http_response_code(405);
+    header('Allow: ' . $expectedMethod);
+    echo json_encode(['error' => $expectedMethod . ' required']);
     exit;
 }
 
@@ -103,32 +112,39 @@ if ($limit > 0 && $used >= $limit) {
     exit;
 }
 
-$body = file_get_contents('php://input') ?: '';
-if ($body === '' || strlen($body) > 2 * 1024 * 1024) {
-    http_response_code(413);
-    echo json_encode(['error' => 'Request body is empty or too large']);
-    exit;
-}
+$body = '';
+$decoded = [];
+$clientRequestedStreaming = false;
+$model = null;
 
-$decoded = json_decode($body, true);
-if (!is_array($decoded)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON']);
-    exit;
-}
-
-$clientRequestedStreaming = array_key_exists('stream', $decoded) && $decoded['stream'] === true;
-if (!array_key_exists('stream', $decoded) && in_array($endpoint, ['chat', 'generate'], true)) {
-    $decoded['stream'] = false;
-    $body = json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    if ($body === false) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Unable to encode request JSON']);
+if ($requestMethod === 'POST') {
+    $body = file_get_contents('php://input') ?: '';
+    if ($body === '' || strlen($body) > 2 * 1024 * 1024) {
+        http_response_code(413);
+        echo json_encode(['error' => 'Request body is empty or too large']);
         exit;
     }
-}
 
-$model = isset($decoded['model']) && is_string($decoded['model']) ? substr($decoded['model'], 0, 150) : null;
+    $decoded = json_decode($body, true);
+    if (!is_array($decoded)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid JSON']);
+        exit;
+    }
+
+    $clientRequestedStreaming = array_key_exists('stream', $decoded) && $decoded['stream'] === true;
+    if (!array_key_exists('stream', $decoded) && in_array($endpoint, ['chat', 'generate'], true)) {
+        $decoded['stream'] = false;
+        $body = json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($body === false) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Unable to encode request JSON']);
+            exit;
+        }
+    }
+
+    $model = isset($decoded['model']) && is_string($decoded['model']) ? substr($decoded['model'], 0, 150) : null;
+}
 $config = proxy_config();
 $url = rtrim((string)$config['upstream_base_url'], '/') . '/api/' . $endpoint;
 $upstreamKeys = proxy_ordered_upstream_keys((int)$user['id']);
@@ -150,12 +166,9 @@ foreach ($upstreamKeys as $upstreamKey) {
     $startedAt = microtime(true);
 
     $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => $body,
+    $curlOptions = [
         CURLOPT_HTTPHEADER => [
             'Authorization: Bearer ' . $upstreamKey,
-            'Content-Type: application/json',
             'Accept: application/json',
             'Connection: close',
         ],
@@ -167,7 +180,17 @@ foreach ($upstreamKeys as $upstreamKey) {
         CURLOPT_FRESH_CONNECT => true,
         CURLOPT_FORBID_REUSE => true,
         CURLOPT_NOSIGNAL => true,
-    ]);
+    ];
+
+    if ($requestMethod === 'POST') {
+        $curlOptions[CURLOPT_POST] = true;
+        $curlOptions[CURLOPT_POSTFIELDS] = $body;
+        $curlOptions[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
+    } else {
+        $curlOptions[CURLOPT_HTTPGET] = true;
+    }
+
+    curl_setopt_array($ch, $curlOptions);
 
     $response = curl_exec($ch);
     $status = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
@@ -205,7 +228,8 @@ proxy_log_usage((int)$user['id'], $endpoint, $model, $finalStatus, strlen($body)
 
 http_response_code($finalStatus);
 header('X-RateLimit-Limit: ' . ($limit > 0 ? $limit : 'unlimited'));
-header('X-RateLimit-Remaining: ' . ($limit > 0 ? max(0, $limit - $used - 1) : 'unlimited'));
+$quotaCost = $endpoint === 'tags' ? 0 : 1;
+header('X-RateLimit-Remaining: ' . ($limit > 0 ? max(0, $limit - $used - $quotaCost) : 'unlimited'));
 header('X-Ollama-Proxy-Attempts: ' . $attempts);
 header('X-Ollama-Proxy-Upstreams: ' . count($upstreamKeys));
 header('X-Ollama-Proxy-Stream-Requested: ' . ($clientRequestedStreaming ? '1' : '0'));
