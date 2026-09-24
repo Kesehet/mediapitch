@@ -105,7 +105,7 @@ if (!$user) {
 
 $limit = (int)$user['daily_request_limit'];
 $used = proxy_requests_today((int)$user['id']);
-if ($limit > 0 && $used >= $limit) {
+if ($endpoint !== 'tags' && $limit > 0 && $used >= $limit) {
     http_response_code(429);
     header('Retry-After: 3600');
     echo json_encode(['error' => 'Daily request limit reached', 'limit' => $limit, 'used' => $used]);
