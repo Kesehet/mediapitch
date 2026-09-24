@@ -148,7 +148,7 @@ function proxy_current_user(): ?array { proxy_start_session(); $id=(int)($_SESSI
 function proxy_find_user_by_api_key(string $key): ?array { $s=proxy_db()->prepare('SELECT * FROM users WHERE api_key_hash=? AND is_active=1');$s->execute([proxy_api_key_hash($key)]);return $s->fetch()?:null; }
 function proxy_requests_today(int $userId): int
 {
-    $s=proxy_db()->prepare("SELECT COUNT(*) FROM usage_logs WHERE user_id=? AND created_at>=datetime('now','+5 hours','+30 minutes','start of day','-5 hours','-30 minutes')");
+    $s=proxy_db()->prepare("SELECT COUNT(*) FROM usage_logs WHERE user_id=? AND endpoint IN ('chat','generate','embed','embeddings') AND created_at>=datetime('now','+5 hours','+30 minutes','start of day','-5 hours','-30 minutes')");
     $s->execute([$userId]);
     return (int)$s->fetchColumn();
 }
