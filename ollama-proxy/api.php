@@ -72,6 +72,7 @@ $endpointMethods = [
     'embed' => 'POST',
     'embeddings' => 'POST',
     'tags' => 'GET',
+    'version' => 'GET',
 ];
 
 if (!isset($endpointMethods[$endpoint])) {
@@ -86,6 +87,14 @@ if ($requestMethod !== $expectedMethod) {
     http_response_code(405);
     header('Allow: ' . $expectedMethod);
     echo json_encode(['error' => $expectedMethod . ' required']);
+    exit;
+}
+
+// Ollama's version probe is read-only. Keep it available without credentials so
+// clients can discover the proxy before sending authenticated model requests.
+// This describes the proxy's API compatibility level, NOT an Ollama daemon.
+if ($endpoint === 'version') {
+    echo '{"version":"0.6.4"}';
     exit;
 }
 
