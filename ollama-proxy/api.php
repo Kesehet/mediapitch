@@ -169,6 +169,14 @@ if (!$isMetadata && $limit > 0 && $used >= $limit) {
     exit;
 }
 
+// This gateway runs no Ollama daemon and therefore holds no models in RAM.
+// Return Ollama's documented /api/ps shape instead of probing a cloud-only
+// backend that may not implement local resident-model inspection.
+if ($endpoint === 'ps') {
+    echo '{"models":[]}';
+    exit;
+}
+
 $body = '';
 $decoded = [];
 $clientRequestedStreaming = false;
