@@ -23,9 +23,23 @@ PHP
 mkdir -p "$TMP/proxy/data"
 php -l "$TMP/proxy/api.php"
 php -l "$TMP/proxy/lib.php"
+php -l "$TMP/proxy/version.php"
 php -l "$TMP/proxy/tests/router.php"
 php -l "$TMP/proxy/tests/mock-upstream.php"
 php -r 'require getenv("TEST_PROXY_DIR") . "/lib.php"; $db=proxy_db(); $db->prepare("INSERT INTO users(email,password_hash,api_key_hash,api_key_cipher,daily_request_limit,is_active) VALUES(?,?,?,?,?,1)")->execute(["test@proxy.local","unused",proxy_api_key_hash("mp_oll_test_key"),"unused",3]);'
+# Prime with an injected future release and check cache reuse without hitting
+# GitHub. The fake tag is test-only; production always uses the official API.
+php -r '
+require getenv("TEST_PROXY_DIR") . "/lib.php";
+require getenv("TEST_PROXY_DIR") . "/version.php";
+if (proxy_ollama_release_version("v0.40.4") !== "0.40.4") exit(1);
+if (proxy_ollama_release_version("v0.40.4-rc0") !== null) exit(1);
+$fetches = 0;
+$probe = static function () use (&$fetches) { ++$fetches; return "v0.40.4"; };
+if (proxy_cached_latest_ollama_version($probe) !== "0.40.4") exit(1);
+if (proxy_cached_latest_ollama_version($probe) !== "0.40.4") exit(1);
+if ($fetches !== 1) exit(1);
+'
 php -S 127.0.0.1:18283 "$TMP/proxy/tests/mock-upstream.php" >"$TMP/upstream.log" 2>&1 &
 UPSTREAM_PID=$!
 php -S 127.0.0.1:18284 "$TMP/proxy/tests/router.php" >"$TMP/proxy.log" 2>&1 &
@@ -46,7 +60,7 @@ assert_code() {
   fi
 }
 assert_code 200 "$BASE/api/version"
-grep -q '"version":"0.6.4"' "$TMP/body"
+grep -q '"version":"0.40.4"' "$TMP/body"
 assert_code 405 -X POST "$BASE/api/version"
 assert_code 404 "$BASE/api/does-not-exist"
 assert_code 200 "$BASE/api/tags"
