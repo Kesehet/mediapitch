@@ -21,4 +21,7 @@ return [
     // Default daily limit assigned to approved users. 0 means unlimited.
     'default_daily_request_limit' => (int) (getenv('OLLAMA_PROXY_DAILY_REQUEST_LIMIT') ?: 100),
     'registration_enabled' => filter_var(getenv('OLLAMA_PROXY_REGISTRATION_ENABLED') ?: 'true', FILTER_VALIDATE_BOOLEAN),
+    // Public read-only /api/tags and /api/show for legacy VS Code Ollama discovery.
+    // New integrations should prefer authenticated /v1/chat/completions.
+    'public_model_discovery' => filter_var(getenv('OLLAMA_PROXY_PUBLIC_MODEL_DISCOVERY') === false ? 'true' : getenv('OLLAMA_PROXY_PUBLIC_MODEL_DISCOVERY'), FILTER_VALIDATE_BOOLEAN),
 ];
