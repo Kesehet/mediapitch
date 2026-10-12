@@ -1,0 +1,23 @@
+name: Ollama Proxy Compatibility
+on:
+  push:
+    paths:
+      - 'ollama-proxy/**'
+      - '.github/workflows/ollama-proxy-tests.yml'
+  pull_request:
+    paths:
+      - 'ollama-proxy/**'
+      - '.github/workflows/ollama-proxy-tests.yml'
+jobs:
+  copilot-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, pdo_sqlite
+          coverage: none
+      - name: Verify PHP API compatibility and security
+        run: bash ollama-proxy/tests/compatibility-smoke.sh
