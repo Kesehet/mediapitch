@@ -229,12 +229,18 @@ foreach ($upstreamKeys as $upstreamKey) {
     $keyId = proxy_upstream_key_id($upstreamKey);
     $attemptedKeyIds[] = $keyId;
     $startedAt = microtime(true);
+    $streaming = $clientRequestedStreaming && in_array($endpoint, [
+        'chat', 'generate', 'v1/chat/completions', 'v1/completions', 'v1/responses'
+    ], true);
+    $streamStarted = false;
+    $streamedBytes = 0;
+    $streamBuffer = '';
 
     $ch = curl_init($url);
     $curlOptions = [
         CURLOPT_HTTPHEADER => [
             'Authorization: Bearer ' . $upstreamKey,
-            'Accept: application/json',
+            'Accept: ' . ($streaming ? 'text/event-stream, application/x-ndjson, application/json' : 'application/json'),
             'Connection: close',
         ],
         CURLOPT_RETURNTRANSFER => true,
@@ -255,9 +261,41 @@ foreach ($upstreamKeys as $upstreamKey) {
         $curlOptions[CURLOPT_HTTPGET] = true;
     }
 
+    if ($streaming) {
+        // The upstream delivers SSE for /v1 and NDJSON for native Ollama.
+        // Forward successful chunks as received; keep HTTP errors buffered
+        // so rotating keys cannot emit a broken or duplicated response.
+        $curlOptions[CURLOPT_RETURNTRANSFER] = false;
+        $curlOptions[CURLOPT_WRITEFUNCTION] = static function ($handle, string $chunk)
+            use (&$streamStarted, &$streamedBytes, &$streamBuffer, $endpoint): int {
+            $n = strlen($chunk);
+            $streamedBytes += $n;
+            $code = (int)curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+            $mime = strtolower((string)curl_getinfo($handle, CURLINFO_CONTENT_TYPE));
+            if ($code < 200 || $code >= 300 || str_contains($mime, 'application/json')) {
+                if (strlen($streamBuffer) < 65536) $streamBuffer .= $chunk;
+                return $n;
+            }
+            if (!$streamStarted) {
+                $streamStarted = true;
+                http_response_code($code);
+                header('Content-Type: ' . (str_starts_with($endpoint, 'v1/')
+                    ? 'text/event-stream; charset=utf-8'
+                    : 'application/x-ndjson; charset=utf-8'));
+                header('Cache-Control: no-store, no-transform');
+                header('X-Accel-Buffering: no');
+                ignore_user_abort(false);
+            }
+            echo $chunk;
+            if (ob_get_level() > 0) @ob_flush();
+            flush();
+            return connection_aborted() ? 0 : $n;
+        };
+    }
     curl_setopt_array($ch, $curlOptions);
 
     $response = curl_exec($ch);
+    if ($streaming && $response !== false) $response = $streamBuffer;
     $status = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
     $curlError = curl_error($ch);
     $curlErrno = curl_errno($ch);
@@ -275,6 +313,20 @@ foreach ($upstreamKeys as $upstreamKey) {
     $finalStatus = $status;
     $finalResponse = (string)$response;
 
+    if ($streamStarted) {
+        // Never fail over after any output; this could duplicate agent tool
+        // calls or splice a second response into the original SSE stream.
+        if ($transportFailed) {
+            proxy_log('STREAM INTERRUPTED key=' . $keyId . ' endpoint=' . $endpoint
+                . ' model=' . ($model ?? 'n/a') . ' errno=' . $curlErrno);
+        } else {
+            proxy_mark_upstream_healthy($upstreamKey);
+            proxy_remember_upstream_key($upstreamKey);
+        }
+        $finalResponse = '';
+        break;
+    }
+
     if (!proxy_api_should_retry($status, $finalResponse, $transportFailed)) {
         proxy_mark_upstream_healthy($upstreamKey);
         proxy_remember_upstream_key($upstreamKey);
@@ -289,18 +341,22 @@ foreach ($upstreamKeys as $upstreamKey) {
     proxy_log('UPSTREAM FAILOVER attempt=' . $attempts . ' key=' . $keyId . ' status=' . $status . ' elapsed=' . $elapsed . 's endpoint=' . $endpoint);
 }
 
-if ($user) proxy_log_usage((int)$user['id'], $endpoint, $model, $finalStatus, strlen($body), strlen($finalResponse));
+if ($user) proxy_log_usage((int)$user['id'], $endpoint, $model, $finalStatus, strlen($body),
+    $streamedBytes + strlen($finalResponse));
 
-http_response_code($finalStatus);
-header('X-RateLimit-Limit: ' . ($limit > 0 ? $limit : 'unlimited'));
-$quotaCost = $isMetadata ? 0 : 1;
-header('X-RateLimit-Remaining: ' . ($limit > 0 ? max(0, $limit - $used - $quotaCost) : 'unlimited'));
-header('X-Ollama-Proxy-Attempts: ' . $attempts);
-header('X-Ollama-Proxy-Upstreams: ' . count($upstreamKeys));
-header('X-Ollama-Proxy-Stream-Requested: ' . ($clientRequestedStreaming ? '1' : '0'));
+// Streaming response headers are already committed with the first chunk.
+if (!$streamStarted) {
+    http_response_code($finalStatus);
+    header('X-RateLimit-Limit: ' . ($limit > 0 ? $limit : 'unlimited'));
+    $quotaCost = $isMetadata ? 0 : 1;
+    header('X-RateLimit-Remaining: ' . ($limit > 0 ? max(0, $limit - $used - $quotaCost) : 'unlimited'));
+    header('X-Ollama-Proxy-Attempts: ' . $attempts);
+    header('X-Ollama-Proxy-Upstreams: ' . count($upstreamKeys));
+    header('X-Ollama-Proxy-Stream-Requested: ' . ($clientRequestedStreaming ? '1' : '0'));
+}
 
-if ($attempts >= count($upstreamKeys) && proxy_api_should_retry($finalStatus, $finalResponse, false)) {
+if (!$streamStarted && $attempts >= count($upstreamKeys) && proxy_api_should_retry($finalStatus, $finalResponse, false)) {
     proxy_log('ALL UPSTREAM KEYS FAILED status=' . $finalStatus . ' keys=' . implode(',', $attemptedKeyIds) . ' endpoint=' . $endpoint . ' model=' . ($model ?? 'n/a'));
 }
 
-echo $finalResponse;
+if (!$streamStarted) echo $finalResponse;
