@@ -2,8 +2,8 @@ Options -Indexes
 RewriteEngine On
 
 # Never expose application internals or the SQLite database.
-RewriteRule ^(?:data|lib\.php|config\.php|README\.md)(?:/|$) - [F,L]
-<FilesMatch "^(?:\.env|\.env\..*|config\.php|lib\.php|README\.md)$">
+RewriteRule ^(?:data|lib\.php|version\.php|config\.php|README\.md)(?:/|$) - [F,L]
+<FilesMatch "^(?:\.env|\.env\..*|config\.php|lib\.php|version\.php|README\.md)$">
   Require all denied
 </FilesMatch>
 
