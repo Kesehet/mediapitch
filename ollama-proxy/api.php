@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__ . '/lib.php';
+require __DIR__ . '/version.php';
 
 @set_time_limit(0);
 @ini_set('max_execution_time', '0');
@@ -101,7 +102,7 @@ if ($requestMethod !== $expectedMethod) {
 // clients can discover the proxy before sending authenticated model requests.
 // This describes the proxy's API compatibility level, NOT an Ollama daemon.
 if ($endpoint === 'version') {
-    echo '{"version":"0.6.4"}';
+    echo json_encode(['version' => proxy_cached_latest_ollama_version()], JSON_UNESCAPED_SLASHES);
     exit;
 }
 
