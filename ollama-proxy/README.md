@@ -12,7 +12,14 @@ Small PHP proxy for controlled access to Ollama Cloud.
 - Embed API: `https://mediapitch.in/ollama-proxy/api/embed`
 - Embeddings API: `https://mediapitch.in/ollama-proxy/api/embeddings`
 - Model list API: `https://mediapitch.in/ollama-proxy/api/tags` (GET)
-- API compatibility version: `https://mediapitch.in/ollama-proxy/api/version` (GET, public, returns `{"version":"0.6.4"}`)
+- API compatibility version: `https://mediapitch.in/ollama-proxy/api/version` (GET, public)
+- Model capabilities: `/api/show` (POST with `{"model":"model:cloud"}`)
+- Running models: `/api/ps` (GET)
+- OpenAI model list: `/v1/models` (GET)
+- OpenAI chat: `/v1/chat/completions` (POST, supports SSE streaming)
+- Other OpenAI routes: `/v1/completions`, `/v1/embeddings`, `/v1/responses` (POST)
+
+The base URL for these API routes is `https://mediapitch.in/ollama-proxy`.
 
 ## Required hosting environment variables
 
@@ -28,6 +35,7 @@ Optional:
 OLLAMA_PROXY_UPSTREAM_BASE_URL=https://ollama.com
 OLLAMA_PROXY_DAILY_REQUEST_LIMIT=100
 OLLAMA_PROXY_REGISTRATION_ENABLED=true
+OLLAMA_PROXY_PUBLIC_MODEL_DISCOVERY=true  # set false to require authentication for /api/tags and /api/show
 ```
 
 Generate the encryption key with:
@@ -62,24 +70,68 @@ curl https://mediapitch.in/ollama-proxy/api/tags \
   -H "Authorization: Bearer mp_oll_YOUR_KEY"
 ```
 
-The version endpoint is a public, read-only compatibility probe. Its value is
-the Ollama API version level advertised by the proxy for client discovery; it
-is **not** the installed version of an upstream Ollama server. It does not use
-an upstream key, consume request quota, or expose a user's API key. All model
-and generation requests still require an authenticated Bearer key.
+## VS Code Copilot setup
 
-Verify the route after deploying:
+**Recommended (secure):** In VS Code's Copilot model picker, choose
+**Manage Language Models > Add Models > Custom Endpoint**, and use:
+
+- API type: **Chat Completions**
+- Model URL: `https://mediapitch.in/ollama-proxy/v1/chat/completions`
+- API key: your **proxy** user key (`mp_oll_...`), not a cloud provider key
+- Model ID: one actually available from Ollama Cloud (e.g. `glm-5.3:cloud`)
+- Enable tool calling only for models reporting the `tools` capability.
+
+VS Code may ask for the model ID and limits explicitly; use the upstream
+model's actual capabilities. Agent mode requires working tool calls. This
+path does not require public discovery, and remains authenticated.
+
+**Legacy Ollama provider:** Set the Ollama base URL to
+`https://mediapitch.in/ollama-proxy`. The older built-in provider calls
+`GET /api/version`, `GET /api/tags`, `POST /api/show` and finally
+`POST /v1/chat/completions`. It omits authentication on the discovery
+requests; consequently the proxy permits public model metadata discovery
+by default. It never permits anonymous generation or embedding requests.
+The public discovery endpoints are limited to 60 requests per minute
+per source IP (based on `REMOTE_ADDR`). This reveals the model catalog
+and metadata to anyone who knows the URL. To opt out, set
+`OLLAMA_PROXY_PUBLIC_MODEL_DISCOVERY=false` and use the secure Custom
+Endpoint method above. The built-in Ollama provider is deprecated in
+modern VS Code; Microsoft's recommended successor is the Ollama extension.
+
+`GET /api/version` always returns `{"version":"0.6.4"}`. This is an
+API compatibility version, **not** the actual installed upstream Ollama
+version. Authenticated `GET /api/tags` and `POST /api/show` are still
+supported regardless of the public-discovery setting.
+
+For chat, the proxy passes request bodies (including tools and reasoning
+settings) to the provider unchanged. A `"stream":true` OpenAI response
+is forwarded as Server-Sent Events, and Ollama native responses as NDJSON.
+Upstream non-2xx errors are buffered for API-key failover before any stream
+bytes are sent. Once streaming begins, the proxy never retries the request,
+so an agent tool call cannot be duplicated.
+
+### Verification
 
 ```bash
 curl -i https://mediapitch.in/ollama-proxy/api/version
-# Expected: HTTP 200 and {"version":"0.6.4"}
-curl -i -X POST https://mediapitch.in/ollama-proxy/api/version
-# Expected: HTTP 405, Allow: GET
+curl -i https://mediapitch.in/ollama-proxy/api/tags
+curl -i https://mediapitch.in/ollama-proxy/api/show \\
+  -H 'Content-Type: application/json' -d '{"model":"glm-5.3:cloud"}'
+curl -i https://mediapitch.in/ollama-proxy/v1/models \\
+  -H 'Authorization: Bearer mp_oll_YOUR_KEY'
+curl -N https://mediapitch.in/ollama-proxy/v1/chat/completions \\
+  -H 'Authorization: Bearer mp_oll_YOUR_KEY' \\
+  -H 'Content-Type: application/json' \\
+  -d '{"model":"glm-5.3:cloud","messages":[{"role":"user","content":"Reply hello"}],"stream":true}'
 ```
+
+Run the isolated fake-upstream smoke tests locally (PHP with curl + sqlite):
+`bash ollama-proxy/tests/compatibility-smoke.sh`.
+A GitHub Actions workflow runs them for changes to `ollama-proxy/`.
 
 ## Storage and limits
 
-SQLite is stored at `ollama-proxy/data/proxy.sqlite`. The directory is denied by `.htaccess` and ignored by Git. Each request logs user, endpoint, model, HTTP status, request size, response size, and timestamp. Daily quota counting applies to generation/embedding endpoints; authenticated `GET /api/tags` model-discovery checks are logged but do not consume the user's daily request quota.
+SQLite is stored at `ollama-proxy/data/proxy.sqlite`. The directory is denied by `.htaccess` and ignored by Git. Each request logs user, endpoint, model, HTTP status, request size, response size, and timestamp. Daily quota counting applies to generation/embedding endpoints; authenticated model-discovery checks are logged but do not consume the user's daily request quota. The inference quota is shared across native `/api` and OpenAI-compatible `/v1` routes.
 
 ## Security notes
 
