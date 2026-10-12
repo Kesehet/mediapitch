@@ -12,7 +12,7 @@ Small PHP proxy for controlled access to Ollama Cloud.
 - Embed API: `https://mediapitch.in/ollama-proxy/api/embed`
 - Embeddings API: `https://mediapitch.in/ollama-proxy/api/embeddings`
 - Model list API: `https://mediapitch.in/ollama-proxy/api/tags` (GET)
-- API compatibility version: `https://mediapitch.in/ollama-proxy/api/version` (GET, public)
+- API version: `https://mediapitch.in/ollama-proxy/api/version` (GET, public; latest stable Ollama release, cached)
 - Model capabilities: `/api/show` (POST with `{"model":"model:cloud"}`)
 - Running models: `/api/ps` (GET)
 - OpenAI model list: `/v1/models` (GET)
@@ -98,10 +98,16 @@ and metadata to anyone who knows the URL. To opt out, set
 Endpoint method above. The built-in Ollama provider is deprecated in
 modern VS Code; Microsoft's recommended successor is the Ollama extension.
 
-`GET /api/version` always returns `{"version":"0.6.4"}`. This is an
-API compatibility version, **not** the actual installed upstream Ollama
-version. Authenticated `GET /api/tags` and `POST /api/show` are still
-supported regardless of the public-discovery setting.
+`GET /api/version` returns the latest stable Ollama release version, using
+`https://api.github.com/repos/ollama/ollama/releases/latest`, cached for
+six hours. For example, on 12 October 2026 the latest stable version is
+`{"version":"0.40.3"}`. If GitHub is unavailable, the proxy returns the
+last known cached version or the fallback `0.40.3`, retrying after five
+minutes. This advertises **the latest published release for discovery**, not
+the installed upstream Ollama binary or a guarantee that every feature in
+that version is implemented by our gateway. No upstream API key or user
+request quota is consumed. Authenticated `GET /api/tags` and `POST
+/api/show` remain supported regardless of the public-discovery setting.
 
 For chat, the proxy passes request bodies (including tools and reasoning
 settings) to the provider unchanged. A `"stream":true` OpenAI response
