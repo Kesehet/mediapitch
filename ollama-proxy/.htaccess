@@ -8,7 +8,9 @@ RewriteRule ^(?:data|lib\.php|config\.php|README\.md)(?:/|$) - [F,L]
 </FilesMatch>
 
 # Ollama-compatible proxy endpoints.
-RewriteRule ^api/(chat|generate|embed|embeddings|tags|version)/?$ api.php?endpoint=$1 [QSA,L]
+RewriteRule ^api/(chat|generate|embed|embeddings|tags|show|ps|version)/?$ api.php?endpoint=$1 [QSA,L]
+# OpenAI-compatible paths used by Copilot chat, agents, and custom endpoints.
+RewriteRule ^v1/(models|chat/completions|completions|embeddings|responses)/?$ api.php?endpoint=v1/$1 [QSA,L]
 
 # Application pages.
 RewriteRule ^login/?$ index.php?action=login [QSA,L]
