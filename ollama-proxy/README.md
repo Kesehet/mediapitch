@@ -12,6 +12,7 @@ Small PHP proxy for controlled access to Ollama Cloud.
 - Embed API: `https://mediapitch.in/ollama-proxy/api/embed`
 - Embeddings API: `https://mediapitch.in/ollama-proxy/api/embeddings`
 - Model list API: `https://mediapitch.in/ollama-proxy/api/tags` (GET)
+- API compatibility version: `https://mediapitch.in/ollama-proxy/api/version` (GET, public, returns `{"version":"0.6.4"}`)
 
 ## Required hosting environment variables
 
@@ -59,6 +60,21 @@ List models with the same proxy API key:
 ```bash
 curl https://mediapitch.in/ollama-proxy/api/tags \
   -H "Authorization: Bearer mp_oll_YOUR_KEY"
+```
+
+The version endpoint is a public, read-only compatibility probe. Its value is
+the Ollama API version level advertised by the proxy for client discovery; it
+is **not** the installed version of an upstream Ollama server. It does not use
+an upstream key, consume request quota, or expose a user's API key. All model
+and generation requests still require an authenticated Bearer key.
+
+Verify the route after deploying:
+
+```bash
+curl -i https://mediapitch.in/ollama-proxy/api/version
+# Expected: HTTP 200 and {"version":"0.6.4"}
+curl -i -X POST https://mediapitch.in/ollama-proxy/api/version
+# Expected: HTTP 405, Allow: GET
 ```
 
 ## Storage and limits
