@@ -72,7 +72,14 @@ $endpointMethods = [
     'embed' => 'POST',
     'embeddings' => 'POST',
     'tags' => 'GET',
+    'show' => 'POST',
+    'ps' => 'GET',
     'version' => 'GET',
+    'v1/models' => 'GET',
+    'v1/chat/completions' => 'POST',
+    'v1/completions' => 'POST',
+    'v1/embeddings' => 'POST',
+    'v1/responses' => 'POST',
 ];
 
 if (!isset($endpointMethods[$endpoint])) {
@@ -98,23 +105,64 @@ if ($endpoint === 'version') {
     exit;
 }
 
-$auth = (string)($_SERVER['HTTP_AUTHORIZATION'] ?? '');
-if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $match)) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Missing Bearer API key']);
-    exit;
-}
+$metadataEndpoints = ['tags', 'show', 'ps', 'v1/models'];
+$isMetadata = in_array($endpoint, $metadataEndpoints, true);
 
-$user = proxy_find_user_by_api_key(trim($match[1]));
-if (!$user) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Invalid or disabled API key']);
-    exit;
+// VS Code Copilot's built-in Ollama provider does not attach auth headers
+// when listing models or inspecting their capabilities.
+// Allow *only* these two read-only model-discovery operations without a key.
+// Operators can disable this using OLLAMA_PROXY_PUBLIC_MODEL_DISCOVERY=false.
+$auth = trim((string)($_SERVER['HTTP_AUTHORIZATION'] ?? ''));
+$publicOption = getenv('OLLAMA_PROXY_PUBLIC_MODEL_DISCOVERY');
+$publicEnabled = filter_var($publicOption === false ? 'true' : $publicOption, FILTER_VALIDATE_BOOLEAN);
+$publicDiscovery = $auth === '' && $publicEnabled && in_array($endpoint, ['tags', 'show'], true);
+$user = null;
+if (!$publicDiscovery) {
+    if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $match)) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Missing Bearer API key']);
+        exit;
+    }
+    $user = proxy_find_user_by_api_key(trim($match[1]));
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid or disabled API key']);
+        exit;
+    }
 }
-
-$limit = (int)$user['daily_request_limit'];
-$used = proxy_requests_today((int)$user['id']);
-if ($endpoint !== 'tags' && $limit > 0 && $used >= $limit) {
+if ($publicDiscovery) {
+    // Server-observed IP only; never trust forwarded headers supplied by callers.
+    // Limit unauthenticated cloud metadata lookups to 60 per minute per IP.
+    $rateFile = proxy_data_dir() . '/discover-' . hash('sha256', (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown')) . '.json';
+    $handle = @fopen($rateFile, 'c+');
+    if (!$handle || !flock($handle, LOCK_EX)) {
+        if ($handle) fclose($handle);
+        http_response_code(503);
+        echo json_encode(['error' => 'Discovery temporarily unavailable']);
+        exit;
+    }
+    $state = json_decode(stream_get_contents($handle) ?: '', true);
+    $now = time();
+    if (!is_array($state) || ($state['since'] ?? 0) <= $now - 60) {
+        $state = ['since' => $now, 'count' => 0];
+    }
+    ++$state['count'];
+    rewind($handle);
+    ftruncate($handle, 0);
+    fwrite($handle, json_encode($state));
+    fflush($handle);
+    flock($handle, LOCK_UN);
+    fclose($handle);
+    if ($state['count'] > 60) {
+        http_response_code(429);
+        header('Retry-After: 60');
+        echo json_encode(['error' => 'Public discovery rate limit reached']);
+        exit;
+    }
+}
+$limit = $user ? (int)$user['daily_request_limit'] : 0;
+$used = $user ? proxy_requests_today((int)$user['id']) : 0;
+if (!$isMetadata && $limit > 0 && $used >= $limit) {
     http_response_code(429);
     header('Retry-After: 3600');
     echo json_encode(['error' => 'Daily request limit reached', 'limit' => $limit, 'used' => $used]);
@@ -141,7 +189,15 @@ if ($requestMethod === 'POST') {
         exit;
     }
 
-    $clientRequestedStreaming = array_key_exists('stream', $decoded) && $decoded['stream'] === true;
+    $clientRequestedStreaming = ($decoded['stream'] ?? null) === true;
+    if ($endpoint === 'show') {
+        $requestedModel = $decoded['model'] ?? $decoded['name'] ?? null;
+        if (!is_string($requestedModel) || !preg_match('~^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,149}$~D', $requestedModel)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid model name']);
+            exit;
+        }
+    }
     if (!array_key_exists('stream', $decoded) && in_array($endpoint, ['chat', 'generate'], true)) {
         $decoded['stream'] = false;
         $body = json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -155,8 +211,8 @@ if ($requestMethod === 'POST') {
     $model = isset($decoded['model']) && is_string($decoded['model']) ? substr($decoded['model'], 0, 150) : null;
 }
 $config = proxy_config();
-$url = rtrim((string)$config['upstream_base_url'], '/') . '/api/' . $endpoint;
-$upstreamKeys = proxy_ordered_upstream_keys((int)$user['id']);
+$url = rtrim((string)$config['upstream_base_url'], '/') . '/' . (str_starts_with($endpoint, 'v1/') ? $endpoint : 'api/' . $endpoint);
+$upstreamKeys = proxy_ordered_upstream_keys($user ? (int)$user['id'] : 0);
 if (!$upstreamKeys) {
     http_response_code(503);
     echo json_encode(['error' => 'No upstream Ollama Cloud API key configured']);
@@ -233,11 +289,11 @@ foreach ($upstreamKeys as $upstreamKey) {
     proxy_log('UPSTREAM FAILOVER attempt=' . $attempts . ' key=' . $keyId . ' status=' . $status . ' elapsed=' . $elapsed . 's endpoint=' . $endpoint);
 }
 
-proxy_log_usage((int)$user['id'], $endpoint, $model, $finalStatus, strlen($body), strlen($finalResponse));
+if ($user) proxy_log_usage((int)$user['id'], $endpoint, $model, $finalStatus, strlen($body), strlen($finalResponse));
 
 http_response_code($finalStatus);
 header('X-RateLimit-Limit: ' . ($limit > 0 ? $limit : 'unlimited'));
-$quotaCost = $endpoint === 'tags' ? 0 : 1;
+$quotaCost = $isMetadata ? 0 : 1;
 header('X-RateLimit-Remaining: ' . ($limit > 0 ? max(0, $limit - $used - $quotaCost) : 'unlimited'));
 header('X-Ollama-Proxy-Attempts: ' . $attempts);
 header('X-Ollama-Proxy-Upstreams: ' . count($upstreamKeys));
